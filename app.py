@@ -34,14 +34,13 @@ st.set_page_config(
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=DM+Serif+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* ── Base ── */
 html, body, [class*="css"] {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.015em;
 }
-
 .main {
     background-color: #07101F;
     background-image:
@@ -49,9 +48,7 @@ html, body, [class*="css"] {
         radial-gradient(ellipse at 10% 85%, rgba(16, 185, 129, 0.07) 0%, transparent 50%);
     min-height: 100vh;
 }
-
 .block-container { padding: 2.5rem 3rem; max-width: 1240px; }
-
 h1,h2,h3,h4,p,span,div { color: inherit; }
 .stMarkdown p { color: #94A3B8; }
 
@@ -71,22 +68,20 @@ h1,h2,h3,h4,p,span,div { color: inherit; }
 }
 .header-eyebrow {
     display:flex; align-items:center; gap:10px;
-    font-family:'DM Mono',monospace; font-size:0.68rem;
+    font-family:'JetBrains Mono',monospace; font-size:0.68rem;
     font-weight:500; letter-spacing:0.14em; text-transform:uppercase;
     color:rgba(147,197,253,0.55); margin-bottom:1rem;
 }
-.header-eyebrow::before {
-    content:''; display:block; width:28px; height:1.5px;
-    background:rgba(147,197,253,0.35);
-}
 .app-header h1 {
-    font-family:'DM Serif Display', serif;
+    font-family:'Fraunces', serif;
     font-size:2.6rem; font-weight:400; color:#FFFFFF !important;
-    letter-spacing:-0.01em; line-height:1.1; margin:0 0 0.6rem;
+    letter-spacing:-0.02em; line-height:1.08; margin:0 0 0.6rem;
+    font-style: italic;
 }
 .app-header p {
     font-size:0.875rem; color:rgba(186,215,250,0.6) !important;
-    font-weight:300; line-height:1.7; max-width:520px; margin:0;
+    font-weight:400; line-height:1.75; max-width:520px; margin:0;
+    letter-spacing: -0.005em;
 }
 .header-badge {
     position:absolute; top:2.5rem; right:3rem;
@@ -104,7 +99,7 @@ h1,h2,h3,h4,p,span,div { color: inherit; }
     0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)}
 }
 .badge-status {
-    font-family:'DM Mono',monospace; font-size:0.62rem;
+    font-family:'JetBrains Mono',monospace; font-size:0.62rem;
     letter-spacing:0.1em; color:rgba(186,215,250,0.45) !important; text-transform:uppercase;
 }
 
@@ -120,7 +115,7 @@ h1,h2,h3,h4,p,span,div { color: inherit; }
     border-radius:10px; transition:all 0.2s; letter-spacing:0.01em;
     display:flex; align-items:center; justify-content:center; gap:6px;
 }
-.step-num { font-family:'DM Mono',monospace; font-size:0.62rem; opacity:0.5; }
+.step-num { font-family:'JetBrains Mono',monospace; font-size:0.62rem; opacity:0.5; }
 .step.done { color:#3B82F6; background:rgba(59,130,246,0.07); }
 .step.active {
     background:#1D4ED8; color:white !important; font-weight:600;
@@ -149,104 +144,31 @@ h1,h2,h3,h4,p,span,div { color: inherit; }
     content:''; position:absolute; top:0; left:0; right:0; height:2px;
     background:linear-gradient(90deg,#1D4ED8,#6366F1); border-radius:16px 16px 0 0;
 }
-.stat-number { font-size:2rem; font-weight:800; color:#F1F5F9 !important;
-               line-height:1; margin-bottom:5px; letter-spacing:-0.03em; }
-.stat-label { font-family:'DM Mono',monospace; font-size:0.65rem;
+.stat-number { font-size:2rem; font-weight:700; color:#F1F5F9 !important;
+               line-height:1; margin-bottom:5px; letter-spacing:-0.04em; }
+.stat-label { font-family:'JetBrains Mono',monospace; font-size:0.65rem;
               color:#3D5070 !important; font-weight:500; text-transform:uppercase; letter-spacing:0.08em; }
 
 /* ── Upload Info Box ── */
 .upload-info {
     background:rgba(29,78,216,0.06); border:1px solid rgba(59,130,246,0.18);
-    border-radius:16px; padding:1.3rem 1.5rem; height:100%; box-sizing:border-box;
+    border-radius:16px; padding:1.3rem 1.5rem; box-sizing:border-box;
+    display:flex; flex-direction:column;
 }
 .upload-info-header {
     display:flex; align-items:center; gap:6px;
-    font-family:'DM Mono',monospace; font-size:0.65rem; font-weight:700;
+    font-family:'JetBrains Mono',monospace; font-size:0.65rem; font-weight:700;
     letter-spacing:0.12em; text-transform:uppercase; color:#60A5FA !important; margin-bottom:0.7rem;
 }
 .upload-info p { font-size:0.84rem; color:#4E6380 !important; line-height:1.6; margin:0 0 0.9rem; }
-.col-list { display:flex; flex-direction:column; gap:6px; }
+.col-list { display:flex; flex-direction:column; gap:6px; flex:1; }
 .col-item {
     display:flex; align-items:center; gap:8px; padding:0.5rem 0.8rem;
     background:rgba(7,16,31,0.7); border:1px solid rgba(255,255,255,0.04);
-    border-radius:8px; transition:border-color 0.2s;
+    border-radius:8px;
 }
-.col-item:hover { border-color:rgba(59,130,246,0.35); }
 .col-dot { width:5px; height:5px; background:#3B82F6; border-radius:50%; flex-shrink:0; }
-.col-name { font-family:'DM Mono',monospace; font-size:0.75rem; color:#94A3B8 !important; }
-
-/* ── FILE UPLOADER — FIXED ── */
-div[data-testid="stFileUploader"] {
-    border:none !important; background:transparent !important; padding:0 !important;
-    height:100% !important;
-}
-div[data-testid="stFileUploader"] > div {
-    border:2px dashed rgba(59,130,246,0.22) !important;
-    border-radius:20px !important;
-    background:rgba(10,18,35,0.6) !important;
-    transition:border-color 0.25s, background 0.25s;
-    min-height:380px !important;
-    display:flex !important;
-    flex-direction:column !important;
-    align-items:stretch !important;
-    justify-content:stretch !important;
-    overflow:hidden !important;
-}
-div[data-testid="stFileUploader"] > div:hover {
-    border-color:rgba(59,130,246,0.6) !important;
-    background:rgba(29,78,216,0.06) !important;
-}
-div[data-testid="stFileUploader"] section {
-    padding:0 !important;
-    min-height:380px !important;
-    height:100% !important;
-    display:flex !important;
-    flex-direction:column !important;
-    align-items:center !important;
-    justify-content:center !important;
-    width:100% !important;
-}
-div[data-testid="stFileUploader"] section > div {
-    display:flex !important; flex-direction:column !important;
-    align-items:center !important; justify-content:center !important;
-    gap:10px !important;
-}
-div[data-testid="stFileUploaderDropzone"] {
-    min-height:380px !important; height:100% !important;
-    display:flex !important; flex-direction:column !important;
-    align-items:center !important; justify-content:center !important;
-    padding:2rem !important; text-align:center !important; box-sizing:border-box !important;
-}
-div[data-testid="stFileUploaderDropzoneInstructions"] {
-    display:flex !important; flex-direction:column !important;
-    align-items:center !important; justify-content:center !important;
-    gap:4px !important;
-}
-div[data-testid="stFileUploaderDropzoneInstructions"] svg {
-    width:48px !important; height:48px !important;
-    color:#3B82F6 !important; margin-bottom:10px !important;
-}
-div[data-testid="stFileUploaderDropzoneInstructions"] span {
-    color:#94A3B8 !important; font-size:1rem !important;
-    font-weight:600 !important; line-height:1.3 !important;
-}
-div[data-testid="stFileUploaderDropzoneInstructions"] small {
-    color:#3D5070 !important; font-size:0.8rem !important;
-    margin-top:2px !important;
-}
-div[data-testid="stFileUploader"] label {
-    color:#94A3B8 !important; font-size:1rem !important;
-    font-weight:600 !important; text-align:center !important;
-}
-div[data-testid="stFileUploader"] button {
-    background:rgba(59,130,246,0.13) !important; color:#60A5FA !important;
-    border:1px solid rgba(59,130,246,0.28) !important; border-radius:10px !important;
-    font-weight:600 !important; box-shadow:none !important; margin-top:0.5rem !important;
-}
-div[data-testid="stFileUploader"] button:hover {
-    background:rgba(59,130,246,0.22) !important; transform:none !important;
-}
-div[data-testid="column"] { align-self:stretch !important; }
+.col-name { font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:#94A3B8 !important; }
 
 /* ── Algorithm Step Box ── */
 .algo-phase {
@@ -258,7 +180,7 @@ div[data-testid="column"] { align-self:stretch !important; }
     display:flex; align-items:center; gap:10px; margin-bottom:0.8rem;
 }
 .algo-phase-num {
-    font-family:'DM Mono',monospace; font-size:0.62rem; font-weight:500;
+    font-family:'JetBrains Mono',monospace; font-size:0.62rem; font-weight:500;
     color:#1D4ED8; background:rgba(29,78,216,0.12); padding:3px 8px;
     border-radius:5px; letter-spacing:0.1em; flex-shrink:0;
 }
@@ -266,7 +188,7 @@ div[data-testid="column"] { align-self:stretch !important; }
 .algo-phase-body { font-size:0.82rem; color:#4E6380 !important; line-height:1.7; }
 .algo-phase-body code {
     background:rgba(255,255,255,0.05); color:#93C5FD !important;
-    font-family:'DM Mono',monospace; font-size:0.78rem;
+    font-family:'JetBrains Mono',monospace; font-size:0.78rem;
     padding:2px 6px; border-radius:4px;
 }
 .algo-phase-accent {
@@ -276,7 +198,7 @@ div[data-testid="column"] { align-self:stretch !important; }
 .algo-step-log {
     background:rgba(7,16,31,0.9); border:1px solid rgba(255,255,255,0.04);
     border-radius:12px; padding:1rem 1.2rem; margin-top:0.6rem;
-    font-family:'DM Mono',monospace; font-size:0.75rem; line-height:1.9;
+    font-family:'JetBrains Mono',monospace; font-size:0.75rem; line-height:1.9;
 }
 .log-line { display:flex; gap:10px; align-items:flex-start; }
 .log-tag {
@@ -293,11 +215,11 @@ div[data-testid="column"] { align-self:stretch !important; }
 .formula-box {
     background:rgba(7,16,31,0.9); border:1px solid rgba(59,130,246,0.15);
     border-radius:12px; padding:1rem 1.4rem; margin:0.6rem 0;
-    font-family:'DM Mono',monospace; font-size:0.82rem;
+    font-family:'JetBrains Mono',monospace; font-size:0.82rem;
     color:#93C5FD !important; text-align:center; letter-spacing:0.02em;
 }
 .formula-label {
-    font-family:'DM Sans',sans-serif; font-size:0.72rem;
+    font-family:'Geist',sans-serif; font-size:0.72rem;
     color:#3D5070 !important; text-align:center; margin-top:4px;
 }
 
@@ -323,7 +245,7 @@ div[data-testid="column"] { align-self:stretch !important; }
 .persona-accent { height:3px; }
 .persona-body   { padding:1.3rem 1.4rem; }
 .persona-badge {
-    display:inline-block; font-family:'DM Mono',monospace;
+    display:inline-block; font-family:'JetBrains Mono',monospace;
     font-size:0.65rem; font-weight:600; letter-spacing:0.08em;
     text-transform:uppercase; padding:3px 10px; border-radius:5px; margin-bottom:0.7rem;
 }
@@ -389,6 +311,49 @@ div[data-testid="column"] { align-self:stretch !important; }
 }
 .stDataFrame { border-radius:12px !important; overflow:hidden;
                border:1px solid rgba(255,255,255,0.05) !important; }
+
+/* ── Styled File Uploader ── */
+[data-testid="stFileUploader"] {
+    background: rgba(10,18,35,0.7);
+    border: 2px dashed rgba(59,130,246,0.35);
+    border-radius: 16px;
+    padding: 1rem;
+    transition: border-color 0.2s;
+}
+[data-testid="stFileUploader"]:hover {
+    border-color: rgba(59,130,246,0.6);
+}
+[data-testid="stFileUploader"] label {
+    color: #94A3B8 !important;
+    font-size: 0.88rem;
+}
+[data-testid="stFileUploaderDropzone"] {
+    background: transparent !important;
+    border: none !important;
+    padding: 1.5rem !important;
+}
+[data-testid="stFileUploaderDropzoneInstructions"] {
+    color: #64748B !important;
+}
+[data-testid="stFileUploaderDropzoneInstructions"] span {
+    font-size: 0.85rem !important;
+}
+[data-testid="stFileUploaderDropzone"] button {
+    background: rgba(59,130,246,0.12) !important;
+    border: 1px solid rgba(59,130,246,0.28) !important;
+    color: #60A5FA !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    margin-top: 0.5rem !important;
+}
+[data-testid="stFileUploaderDropzone"] button:hover {
+    background: rgba(59,130,246,0.22) !important;
+}
+[data-testid="stFileUploaderDropzone"] svg {
+    fill: #3B82F6 !important;
+    opacity: 0.6;
+}
+
 ::-webkit-scrollbar { width:5px; height:5px; }
 ::-webkit-scrollbar-track { background:rgba(255,255,255,0.01); }
 ::-webkit-scrollbar-thumb { background:rgba(59,130,246,0.28); border-radius:3px; }
@@ -406,14 +371,14 @@ CLUSTER_COLORS_TEXT = ["#60A5FA","#34D399","#FCD34D","#C4B5FD"]
 PHASE_COLORS        = ["#3B82F6","#10B981","#F59E0B","#A78BFA","#F43F5E","#0EA5E9"]
 
 FITUR_LABELS = [
-    "Jam Transaksi","Kategori Produk","Nominal Transaksi",
-    "Cashback","Poin Loyalitas","Metode Pembayaran","Jenis Perangkat"
+    "transaction_hour","product_category_enc","product_amount",
+    "cashback","loyalty_points","payment_method_enc","device_type_enc"
 ]
 
 DARK_LAYOUT = dict(
     plot_bgcolor="#08111E", paper_bgcolor="#08111E",
-    font=dict(family="DM Sans, sans-serif", color="#4E6380"),
-    title_font=dict(size=13, color="#94A3B8", family="DM Sans"),
+    font=dict(family="Geist, sans-serif", color="#4E6380"),
+    title_font=dict(size=13, color="#94A3B8", family="Geist"),
     margin=dict(t=50,b=40,l=45,r=20),
 )
 DARK_GRID = dict(
@@ -422,17 +387,11 @@ DARK_GRID = dict(
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  ╔═══════════════════════════════════════╗
-#  ║   MODUL ALGORITMA — CRISP-DM + KMeans ║
-#  ╚═══════════════════════════════════════╝
+#  MODUL ALGORITMA — CRISP-DM + KMeans
 # ══════════════════════════════════════════════════════════════════════════════
 
 def validate_columns(df: pd.DataFrame) -> bool:
-    """
-    FASE 1 — BUSINESS UNDERSTANDING
-    Validasi apakah DataFrame memiliki semua kolom yang diperlukan.
-    Kolom wajib sesuai dengan feature yang akan digunakan dalam clustering.
-    """
+    """Validasi 7 kolom wajib menggunakan set.issubset() sesuai metodologi."""
     required = {
         "transaction_date", "product_category", "product_amount",
         "cashback", "loyalty_points", "payment_method", "device_type"
@@ -442,72 +401,49 @@ def validate_columns(df: pd.DataFrame) -> bool:
 
 def fase2_data_understanding(df: pd.DataFrame) -> dict:
     """
-    FASE 2 — DATA UNDERSTANDING
-    Menganalisis struktur data: jumlah baris, kolom, missing values,
-    distribusi tipe data, dan statistik deskriptif dasar.
-
-    Returns:
-        dict berisi ringkasan pemahaman data
+    FASE 2 — Data Collection & Understanding
+    EDA awal: total baris, kolom, missing values, distribusi variabel kategorikal.
     """
     stats = {
-        "n_rows"      : len(df),
-        "n_cols"      : len(df.columns),
-        "missing_total": int(df.isnull().sum().sum()),
+        "n_rows"         : len(df),
+        "n_cols"         : len(df.columns),
+        "missing_total"  : int(df.isnull().sum().sum()),
         "missing_per_col": df.isnull().sum().to_dict(),
-        "dtypes"      : df.dtypes.astype(str).to_dict(),
-        "numeric_desc": df.describe().to_dict(),
-        "unique_payment": df["payment_method"].nunique() if "payment_method" in df.columns else 0,
-        "unique_device" : df["device_type"].nunique()    if "device_type"    in df.columns else 0,
+        "dtypes"         : df.dtypes.astype(str).to_dict(),
+        "numeric_desc"   : df.describe().to_dict(),
+        # distribusi variabel kategorikal
+        "unique_payment" : df["payment_method"].nunique() if "payment_method" in df.columns else 0,
+        "unique_device"  : df["device_type"].nunique()    if "device_type"    in df.columns else 0,
         "unique_category": df["product_category"].nunique() if "product_category" in df.columns else 0,
+        # distribusi payment method (%)
+        "payment_dist"   : (df["payment_method"].value_counts(normalize=True)*100
+                            ).round(1).to_dict() if "payment_method" in df.columns else {},
+        # distribusi device type (%)
+        "device_dist"    : (df["device_type"].value_counts(normalize=True)*100
+                            ).round(1).to_dict() if "device_type" in df.columns else {},
     }
     return stats
 
 
 def fase3_data_preparation(df: pd.DataFrame) -> tuple:
     """
-    FASE 3 — DATA PREPARATION
-    Tahapan pra-pemrosesan data sebelum clustering:
-
-    Langkah 3a — Parsing tanggal & ekstraksi jam transaksi
-        transaction_hour = hour(transaction_date)
-        → Merepresentasikan pola waktu transaksi
-
-    Langkah 3b — Label Encoding variabel kategorikal
-        Mengubah string → integer agar bisa dihitung jarak Euclidean
-        payment_method  → payment_method_enc   (LabelEncoder)
-        device_type     → device_type_enc      (LabelEncoder)
-        product_category→ product_category_enc (LabelEncoder)
-
-    Langkah 3c — Feature Selection
-        7 fitur dipilih:
-        [transaction_hour, product_category_enc, product_amount,
-         cashback, loyalty_points, payment_method_enc, device_type_enc]
-
-    Langkah 3d — Feature Scaling (Standardisasi Z-Score)
-        x' = (x - μ) / σ
-        Tujuan: agar semua fitur berkontribusi setara pada perhitungan jarak.
-        Tanpa standardisasi, fitur dengan skala besar (misal nominal Rp)
-        akan mendominasi perhitungan jarak Euclidean.
-
-    Returns:
-        df_proc   : DataFrame yang sudah diproses
-        X_scaled  : numpy array fitur yang telah distandarisasi
-        features  : list nama kolom fitur
-        le_info   : dict encoding info (untuk keperluan penjelasan)
-        scaler    : objek StandardScaler (untuk inverse transform jika perlu)
+    FASE 3 — Data Preparation (sesuai metodologi artikel):
+      3a. Parsing datetime & ekstrak transaction_hour (0-23)
+      3b. Label Encoding untuk payment_method, device_type, product_category
+      3c. Seleksi 7 fitur → matrix X
+      3d. Normalisasi Z-Score dengan StandardScaler
     """
     df = df.copy()
     prep_log = {}
 
-    # -- 3a: Parsing tanggal --
+    # 3a. Parsing tanggal & ekstrak jam — format DD/MM/YYYY HH:MM
     df["transaction_date"] = pd.to_datetime(df["transaction_date"], dayfirst=True, errors="coerce")
     df["transaction_hour"] = df["transaction_date"].dt.hour
-    prep_log["3a_parsing"] = f"Ekstrak jam dari transaction_date → transaction_hour"
+    prep_log["3a"] = "pd.to_datetime(dayfirst=True) → .dt.hour → transaction_hour ∈ [0, 23]"
 
-    # -- 3b: Label Encoding --
+    # 3b. Label Encoding — mengubah teks ke integer ordinal
     le = LabelEncoder()
     le_info = {}
-
     for col, new_col in [
         ("payment_method",   "payment_method_enc"),
         ("device_type",      "device_type_enc"),
@@ -515,9 +451,9 @@ def fase3_data_preparation(df: pd.DataFrame) -> tuple:
     ]:
         df[new_col] = le.fit_transform(df[col].astype(str))
         le_info[col] = dict(zip(le.classes_, le.transform(le.classes_)))
-        prep_log[f"3b_{col}"] = f"LabelEncoding: {dict(list(le_info[col].items())[:4])}"
+        prep_log[f"3b_{col}"] = f"LabelEncoder(): {dict(list(le_info[col].items())[:4])}"
 
-    # -- 3c: Feature Selection --
+    # 3c. Seleksi 7 fitur → array features
     features = [
         "transaction_hour",
         "product_category_enc",
@@ -527,13 +463,13 @@ def fase3_data_preparation(df: pd.DataFrame) -> tuple:
         "payment_method_enc",
         "device_type_enc",
     ]
-    prep_log["3c_features"] = f"7 fitur dipilih: {features}"
+    prep_log["3c"] = f"features = {features}"
 
-    # -- 3d: Standardisasi Z-Score --
-    X_raw   = df[features].dropna()
-    scaler  = StandardScaler()
+    X_raw    = df[features].dropna()
+    # 3d. Normalisasi Z-Score: x' = (x − μ) / σ
+    scaler   = StandardScaler()
     X_scaled = scaler.fit_transform(X_raw)
-    prep_log["3d_scaling"] = (
+    prep_log["3d"] = (
         f"StandardScaler: μ={scaler.mean_.round(3)}, σ={scaler.scale_.round(3)}"
     )
 
@@ -542,21 +478,9 @@ def fase3_data_preparation(df: pd.DataFrame) -> tuple:
 
 def fase4a_elbow_method(X_scaled: np.ndarray, k_min: int = 2, k_max: int = 10) -> tuple:
     """
-    FASE 4a — ELBOW METHOD (Menentukan k optimal)
-
-    Algoritma Elbow:
-    Untuk setiap k dari k_min hingga k_max:
-        1. Jalankan K-Means dengan k cluster
-        2. Hitung WCSS (Within-Cluster Sum of Squares) = Inertia
-           WCSS = Σᵢ Σₓ∈Cᵢ ‖x − μᵢ‖²
-           di mana μᵢ adalah centroid cluster ke-i
-        3. Plot WCSS vs k → cari "siku" (elbow) = penurunan WCSS
-           mulai melambat ← itu k optimal
-
-    Returns:
-        k_range : list nilai k yang diuji
-        wcss    : list nilai WCSS per k
-        elbow_log : list log per iterasi
+    FASE 4a — Elbow Method
+    Loop k=2..10: fit KMeans lalu simpan .inertia_ (WCSS).
+    Kurva WCSS diplot, titik siku = k kandidat optimal.
     """
     k_range   = list(range(k_min, k_max + 1))
     wcss      = []
@@ -565,7 +489,7 @@ def fase4a_elbow_method(X_scaled: np.ndarray, k_min: int = 2, k_max: int = 10) -
     for k in k_range:
         km = KMeans(
             n_clusters=k,
-            init="k-means++",   # Inisialisasi cerdas (bukan random murni)
+            init="k-means++",
             max_iter=300,
             n_init=10,
             random_state=42
@@ -573,9 +497,9 @@ def fase4a_elbow_method(X_scaled: np.ndarray, k_min: int = 2, k_max: int = 10) -
         km.fit(X_scaled)
         wcss.append(km.inertia_)
         elbow_log.append({
-            "k"    : k,
-            "wcss" : round(km.inertia_, 2),
-            "n_iter": km.n_iter_,
+            "k"           : k,
+            "wcss"        : round(km.inertia_, 2),
+            "n_iterations": km.n_iter_,
         })
 
     return k_range, wcss, elbow_log
@@ -583,31 +507,10 @@ def fase4a_elbow_method(X_scaled: np.ndarray, k_min: int = 2, k_max: int = 10) -
 
 def fase4b_silhouette_analysis(X_scaled: np.ndarray, k_range: list) -> tuple:
     """
-    FASE 4b — SILHOUETTE ANALYSIS (Validasi kualitas cluster)
-
-    Silhouette Score mengukur seberapa baik setiap titik data
-    berada di clusternya sendiri dibanding cluster tetangga.
-
-    Rumus Silhouette Score per titik data i:
-        s(i) = (b(i) - a(i)) / max(a(i), b(i))
-
-        di mana:
-        a(i) = rata-rata jarak i ke semua titik dalam cluster yang sama
-               (cohesion — seberapa dekat dengan sesama anggota cluster)
-        b(i) = rata-rata jarak i ke semua titik di cluster terdekat lainnya
-               (separation — seberapa jauh dari cluster lain)
-
-    Interpretasi nilai s(i):
-        +1 : sangat tepat berada di clusternya
-         0 : berada di batas antara dua cluster
-        -1 : kemungkinan salah cluster
-
-    Silhouette Score keseluruhan = rata-rata s(i) semua titik
-    Pilih k dengan Silhouette Score TERTINGGI
-
-    Returns:
-        sil_scores : list score per k
-        sil_log    : list log per iterasi
+    FASE 4b — Silhouette Score
+    Hitung silhouette_score(X_scaled, km.labels_) per k.
+    k dengan np.argmax(sil_scores) ditetapkan sebagai optimal_k.
+    Kriteria keberhasilan: score >= 0.4 (sesuai Business Understanding).
     """
     sil_scores = []
     sil_log    = []
@@ -630,46 +533,17 @@ def fase4b_silhouette_analysis(X_scaled: np.ndarray, k_range: list) -> tuple:
     return sil_scores, sil_log
 
 
-def fase4c_kmeans_clustering(X_scaled: np.ndarray, k: int) -> tuple:
+def fase4c_kmeans_final(X_scaled: np.ndarray, k: int) -> tuple:
     """
-    FASE 4c — K-MEANS CLUSTERING (Algoritma Utama)
-
-    Algoritma K-Means dengan inisialisasi K-Means++:
-
-    === INISIALISASI K-MEANS++ ===
-    (lebih baik dari random — menghindari konvergensi ke local minimum)
-    1. Pilih centroid pertama secara acak dari data
-    2. Untuk setiap centroid berikutnya:
-       Hitung D(x)² = jarak minimum ke centroid yang sudah ada
-       Pilih titik berikutnya dengan probabilitas ∝ D(x)²
-       (titik yang jauh dari centroid yang ada lebih mungkin dipilih)
-
-    === ITERASI K-MEANS ===
-    Ulangi hingga konvergen (centroid tidak berubah):
-
-    Langkah E (Assignment Step):
-        Untuk setiap titik data x:
-            Assign x ke cluster Cᵢ dengan centroid μᵢ terdekat
-            c(x) = argmin_i ‖x − μᵢ‖²   (Euclidean distance)
-
-    Langkah M (Update Step):
-        Perbarui centroid setiap cluster:
-            μᵢ = (1/|Cᵢ|) Σₓ∈Cᵢ x
-            (centroid baru = rata-rata semua titik dalam cluster)
-
-    Konvergensi: ketika Δμᵢ < ε untuk semua i
-    (centroid tidak berpindah secara signifikan)
-
-    Returns:
-        labels    : array label cluster untuk setiap titik data
-        km_model  : model KMeans yang sudah difit
-        km_log    : dict informasi proses clustering
+    FASE 4c — Training Model Final (run_kmeans)
+    KMeans.fit_predict() → array label integer per baris transaksi.
+    Menggunakan k-means++ init untuk inisialisasi centroid yang lebih baik.
     """
     km = KMeans(
         n_clusters=k,
         init="k-means++",
         max_iter=300,
-        n_init=10,         # 10 inisialisasi berbeda, ambil yang WCSS terkecil
+        n_init=10,
         random_state=42
     )
     labels = km.fit_predict(X_scaled)
@@ -686,28 +560,12 @@ def fase4c_kmeans_clustering(X_scaled: np.ndarray, k: int) -> tuple:
     return labels, km, km_log
 
 
-def fase4d_pca_reduction(X_scaled: np.ndarray, labels: np.ndarray) -> tuple:
+def fase4d_pca_visualization(X_scaled: np.ndarray, labels: np.ndarray) -> tuple:
     """
-    FASE 4d — PCA DIMENSIONALITY REDUCTION (Visualisasi)
-
-    PCA (Principal Component Analysis) digunakan HANYA untuk visualisasi.
-    Clustering dilakukan pada 7 dimensi asli (bukan hasil PCA).
-
-    Algoritma PCA:
-    1. Hitung matriks kovarians: Σ = (1/n) XᵀX
-    2. Dekomposisi eigenvalue: Σ = VΛVᵀ
-    3. Urutkan eigenvector berdasarkan eigenvalue (descending)
-    4. Proyeksikan data ke 2 eigenvector pertama:
-       X_reduced = X · V₂
-       (V₂ = matrix 2 eigenvector dengan variance terbesar)
-
-    Explained Variance Ratio:
-       EVR = λᵢ / Σλ   (proporsi informasi yang dipertahankan)
-
-    Returns:
-        coords    : koordinat 2D setelah PCA (n_samples × 2)
-        var_ratio : explained variance ratio [PC1, PC2]
-        pca_log   : dict informasi PCA
+    FASE 4d — Reduksi PCA 2D (hanya untuk visualisasi)
+    PCA(n_components=2).fit_transform(X_scaled) → koordinat 2D per transaksi.
+    explained_variance_ratio_ ditampilkan di judul scatter plot.
+    Clustering sesungguhnya tetap di ruang 7D.
     """
     pca    = PCA(n_components=2, random_state=42)
     coords = pca.fit_transform(X_scaled)
@@ -716,10 +574,59 @@ def fase4d_pca_reduction(X_scaled: np.ndarray, labels: np.ndarray) -> tuple:
         "explained_var_ratio" : pca.explained_variance_ratio_.round(4).tolist(),
         "total_var_explained" : round(sum(pca.explained_variance_ratio_) * 100, 2),
         "n_components"        : 2,
-        "note"                : "PCA hanya untuk visualisasi; clustering di 7D"
+        "note"                : "PCA hanya untuk visualisasi — label cluster dari K-Means 7D"
     }
 
     return coords, pca.explained_variance_ratio_, pca_log
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  FASE 5 — EVALUATION: Profiling & Persona
+# ══════════════════════════════════════════════════════════════════════════════
+
+def fase5_profiling(df_proc: pd.DataFrame) -> pd.DataFrame:
+    """
+    Profiling cluster menggunakan df.groupby("cluster").agg():
+    - mean untuk product_amount, cashback, loyalty_points
+    - mode()[0] untuk payment_method, device_type, transaction_hour, product_category
+    """
+    profile = df_proc.groupby("cluster").agg(
+        jumlah   = ("cluster",          "count"),
+        nominal  = ("product_amount",    "mean"),
+        cashback = ("cashback",          "mean"),
+        poin     = ("loyalty_points",    "mean"),
+        jam      = ("transaction_hour",  lambda x: x.mode()[0]),
+        metode   = ("payment_method",    lambda x: x.mode()[0]),
+        device   = ("device_type",       lambda x: x.mode()[0]),
+        kategori = ("product_category",  lambda x: x.mode()[0]),
+    ).reset_index()
+    return profile
+
+
+def get_persona_name(row) -> str:
+    """
+    Fungsi get_persona_name(row):
+    Klasifikasi sesi hari dari jam puncak → level nominal.
+    Malam ≥20 atau <5 / Pagi <12 / Siang <17 / Sore.
+    Premium >6.000 / Menengah >3.000 / Hemat.
+    """
+    sesi  = "Malam"   if row["jam"] >= 20 or row["jam"] < 5 else \
+            "Pagi"    if row["jam"] < 12 else \
+            "Siang"   if row["jam"] < 17 else "Sore"
+    level = "Premium" if row["nominal"] > 6000 else \
+            "Menengah" if row["nominal"] > 3000 else "Hemat"
+    return f"Pengguna {level} · {row['device']} · {sesi}"
+
+
+def get_persona_desc(row) -> str:
+    """
+    Fungsi get_persona_desc(row):
+    2 kalimat deskriptif otomatis: jam dominan, device, metode, kategori.
+    """
+    return (f"Transaksi dominan pukul {row['jam']:02d}:00 melalui {row['device']}. "
+            f"Metode favorit <strong style='color:#93C5FD'>{row['metode']}</strong> "
+            f"dengan fokus kategori "
+            f"<strong style='color:#CBD5E1'>{row['kategori']}</strong>.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -741,8 +648,7 @@ def render_algo_phase(num: str, title: str, body: str, color: str, log_html: str
     </div>
     """, unsafe_allow_html=True)
 
-def log_html(lines: list) -> str:
-    """Render log box HTML dari list of (tag_type, text) tuples."""
+def make_log_html(lines: list) -> str:
     inner = ""
     for tag, text in lines:
         inner += (f'<div class="log-line">'
@@ -758,9 +664,8 @@ st.markdown("""
 <div class="app-header">
     <div class="header-eyebrow">Fintech Analytics · CRISP-DM Framework</div>
     <h1>Analisis Cluster E-Wallet</h1>
-    <p>Segmentasi perilaku transaksi digital menggunakan K-Means Clustering.
-       Setiap tahap algoritma ditampilkan secara transparan untuk keperluan
-       akademis dan presentasi.</p>
+    <p>Segmentasi pola perilaku transaksi digital menggunakan K-Means Clustering
+       dengan pendekatan 5 fase CRISP-DM.</p>
     <div class="header-badge">
         <div class="badge-icon">🧩</div>
         <div>
@@ -774,9 +679,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  STEP BAR
-# ══════════════════════════════════════════════════════════════════════════════
+# STEP BAR
 step_now    = gs("step", "upload")
 steps       = ["upload", "preview", "analisis", "hasil"]
 step_icons  = ["↑", "⌕", "◎", "⊞"]
@@ -794,6 +697,7 @@ bar += "</div>"
 st.markdown(bar, unsafe_allow_html=True)
 
 
+# ══════════════════════════════════════════════════════════════════════════════
 #  STEP 1 — UPLOAD
 # ══════════════════════════════════════════════════════════════════════════════
 if step_now == "upload":
@@ -803,47 +707,113 @@ if step_now == "upload":
     </div>
     """, unsafe_allow_html=True)
 
-    col_left, col_right = st.columns([4, 7], gap="large")
+    col_left, col_right = st.columns([1, 1], gap="large")
 
     with col_left:
         st.markdown("""
         <div class="upload-info">
             <div class="upload-info-header">ⓘ &nbsp;Persyaratan Data</div>
             <p>File CSV harus memiliki tepat <strong style="color:#60A5FA">7 kolom</strong>
-               berikut. Separator kolom menggunakan titik koma <code style="color:#93C5FD;background:rgba(255,255,255,0.05);padding:1px 5px;border-radius:3px">;</code></p>
+               berikut. Separator kolom menggunakan titik koma
+               <code style="color:#93C5FD;background:rgba(255,255,255,0.05);
+               padding:1px 5px;border-radius:3px">;</code></p>
             <div class="col-list">
-                <div class="col-item"><span class="col-dot"></span><span class="col-name">transaction_date</span></div>
-                <div class="col-item"><span class="col-dot"></span><span class="col-name">product_category</span></div>
-                <div class="col-item"><span class="col-dot"></span><span class="col-name">product_amount</span></div>
-                <div class="col-item"><span class="col-dot"></span><span class="col-name">cashback</span></div>
-                <div class="col-item"><span class="col-dot"></span><span class="col-name">loyalty_points</span></div>
-                <div class="col-item"><span class="col-dot"></span><span class="col-name">payment_method</span></div>
-                <div class="col-item"><span class="col-dot"></span><span class="col-name">device_type</span></div>
+                <div class="col-item"><span class="col-dot"></span>
+                    <span class="col-name">transaction_date</span>
+                    <span style="font-size:0.7rem;color:#3D5070;margin-left:auto">Datetime · DD/MM/YYYY HH:MM</span>
+                </div>
+                <div class="col-item"><span class="col-dot"></span>
+                    <span class="col-name">product_category</span>
+                    <span style="font-size:0.7rem;color:#3D5070;margin-left:auto">Kategorikal · 20 kategori</span>
+                </div>
+                <div class="col-item"><span class="col-dot"></span>
+                    <span class="col-name">product_amount</span>
+                    <span style="font-size:0.7rem;color:#3D5070;margin-left:auto">Numerik · 10–9.997</span>
+                </div>
+                <div class="col-item"><span class="col-dot"></span>
+                    <span class="col-name">cashback</span>
+                    <span style="font-size:0.7rem;color:#3D5070;margin-left:auto">Numerik · 0–100</span>
+                </div>
+                <div class="col-item"><span class="col-dot"></span>
+                    <span class="col-name">loyalty_points</span>
+                    <span style="font-size:0.7rem;color:#3D5070;margin-left:auto">Numerik · 0–999</span>
+                </div>
+                <div class="col-item"><span class="col-dot"></span>
+                    <span class="col-name">payment_method</span>
+                    <span style="font-size:0.7rem;color:#3D5070;margin-left:auto">Kategorikal · 5 metode</span>
+                </div>
+                <div class="col-item"><span class="col-dot"></span>
+                    <span class="col-name">device_type</span>
+                    <span style="font-size:0.7rem;color:#3D5070;margin-left:auto">Kategorikal · 3 platform</span>
+                </div>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     with col_right:
+        st.markdown("<br>", unsafe_allow_html=True)
         uploaded = st.file_uploader(
-            "☁  Pilih atau seret file CSV ke sini",
+            "☁️  Seret & lepas file CSV, atau klik **Browse files**",
             type=["csv"],
-            label_visibility="visible",
-            help="Gunakan separator titik koma (;). Maksimal 200MB.",
-            key="file_uploader"
+            key="file_uploader",
+            help="Format CSV dengan separator titik koma (;) · Maks. 200MB"
         )
+
+        # ── Setelah file dipilih: tampilkan preview dulu, tunggu konfirmasi user
         if uploaded is not None:
             try:
-                df = pd.read_csv(uploaded, sep=";")
-                if not validate_columns(df):
-                    st.error("❌ Kolom tidak sesuai. Pastikan CSV memiliki 7 kolom yang diperlukan.")
+                df_preview = pd.read_csv(uploaded, sep=";")
+                if not validate_columns(df_preview):
+                    st.error("❌ Kolom tidak sesuai. Pastikan CSV memiliki 7 kolom wajib.")
                 else:
-                    st.session_state["df_raw"] = df
-                    st.session_state["step"]   = "preview"
-                    st.rerun()
+                    # Simpan sementara ke session state tapi BELUM pindah step
+                    st.session_state["df_pending"] = df_preview
+
+                    n_rows = len(df_preview)
+                    n_cols = len(df_preview.columns)
+                    missing = int(df_preview.isnull().sum().sum())
+
+                    st.markdown(f"""
+                    <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);
+                                border-radius:12px;padding:1rem 1.2rem;margin-top:0.8rem;">
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;
+                                    font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+                                    color:#34D399;margin-bottom:0.6rem;">✓ File Terdeteksi</div>
+                        <div style="font-size:0.82rem;color:#64748B;line-height:1.8;">
+                            📄 <b style="color:#94A3B8">{uploaded.name}</b><br>
+                            📊 {n_rows:,} baris &nbsp;·&nbsp; {n_cols} kolom &nbsp;·&nbsp;
+                            {'<span style="color:#F87171">'+str(missing)+' missing</span>' if missing > 0
+                             else '<span style="color:#34D399">0 missing ✓</span>'}
+                        </div>
+                        <div style="margin-top:0.7rem;font-size:0.75rem;color:#3D5070;">
+                            Preview 3 baris pertama:
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    st.dataframe(df_preview.head(3), use_container_width=True, height=140)
+
+                    if st.button("✅  Gunakan File Ini — Lanjut ke Preview & Validasi",
+                                 type="primary", use_container_width=True):
+                        st.session_state["df_raw"]    = df_preview
+                        st.session_state["df_pending"] = None
+                        st.session_state["step"]       = "preview"
+                        st.rerun()
+
             except Exception as e:
                 st.error(f"❌ Gagal membaca file: {e}")
 
-        if st.button("🗄  Gunakan Data Contoh  →", use_container_width=True):
+        else:
+            # Tidak ada file yang dipilih — tampilkan tombol data contoh
+            st.markdown("<br>", unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        use_sample = st.button(
+            "🗄  Gunakan Data Contoh (project_Data_ewallet.csv)",
+            use_container_width=True
+        )
+
+        if use_sample:
             try:
                 df = pd.read_csv("/mnt/user-data/uploads/project_Data_ewallet.csv", sep=";")
                 st.session_state["df_raw"] = df
@@ -852,17 +822,19 @@ if step_now == "upload":
             except Exception as e:
                 st.error(f"❌ File contoh tidak ditemukan: {e}")
 
-# ═════════ STEP 2 — PREVIEW & VALIDASI═════════════════════════════════════════════════════════════════════
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  STEP 2 — PREVIEW & VALIDASI (FASE 2: Data Collection & Understanding)
+# ══════════════════════════════════════════════════════════════════════════════
 elif step_now == "preview":
     df = gs("df_raw")
     st.markdown("""
     <div class="section-title">
-        <span class="section-title-icon">⌕</span> Preview & Validasi Data
+        <span class="section-title-icon">⌕</span> Preview & Validasi — FASE 2: Data Collection & Understanding
     </div>
     """, unsafe_allow_html=True)
 
-    # Fase 2 — Data Understanding
-    du = fase2_data_understanding(df)
+    du      = fase2_data_understanding(df)
     missing = du["missing_total"]
 
     st.markdown(f"""
@@ -877,7 +849,15 @@ elif step_now == "preview":
         </div>
         <div class="stat-card">
             <div class="stat-number">{missing}</div>
-            <div class="stat-label">Nilai Kosong</div>
+            <div class="stat-label">Missing Values</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{du['unique_payment']}</div>
+            <div class="stat-label">Metode Pembayaran</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{du['unique_device']}</div>
+            <div class="stat-label">Jenis Perangkat</div>
         </div>
         <div class="stat-card">
             <div class="stat-number">{du['unique_category']}</div>
@@ -885,29 +865,39 @@ elif step_now == "preview":
         </div>
     </div>
     <div class="pill-row">
-        <span class="pill-label">Fitur akan dianalisis :</span>
+        <span class="pill-label">7 Fitur yang akan dianalisis :</span>
         {''.join(f'<span class="pill">{f}</span>' for f in FITUR_LABELS)}
     </div>
     """, unsafe_allow_html=True)
 
-    # Penjelasan Fase 2 untuk dosen
+    # Distribusi variabel kategorikal
+    pay_dist_str = "  |  ".join(
+        [f"{k}: {v:.1f}%" for k, v in list(du["payment_dist"].items())[:5]]
+    )
+    dev_dist_str = "  |  ".join(
+        [f"{k}: {v:.1f}%" for k, v in list(du["device_dist"].items())[:3]]
+    )
+
     render_algo_phase(
-        "FASE 02", "DATA UNDERSTANDING",
-        f"""Tahap eksplorasi awal sebelum pemrosesan. Dataset berisi
-        <code>{du['n_rows']:,}</code> baris transaksi dengan <code>{du['n_cols']}</code>
-        kolom. Terdeteksi <code>{du['unique_payment']}</code> metode pembayaran unik,
-        <code>{du['unique_device']}</code> jenis perangkat, dan
-        <code>{du['unique_category']}</code> kategori produk.
-        Missing values: <code>{missing}</code> — akan dihapus pada tahap preparasi.""",
+        "FASE 02", "DATA COLLECTION & UNDERSTANDING",
+        f"""Eksplorasi awal sebelum pemrosesan. Dataset berisi
+        <code>{du['n_rows']:,}</code> record transaksi dengan <code>{du['n_cols']}</code> kolom.
+        <br><br>
+        <b>Distribusi payment_method:</b> {pay_dist_str}<br>
+        <b>Distribusi device_type:</b> {dev_dist_str}<br><br>
+        Validasi kolom dilakukan dengan <code>set.issubset()</code> — memastikan 7 kolom wajib ada.
+        Missing values dideteksi dengan <code>df.isnull().sum()</code>.
+        Missing values <code>{missing}</code> {'→ akan di-drop saat preprocessing.' if missing > 0 else '✓ — data bersih, tidak ada missing values.'}""",
         PHASE_COLORS[1],
-        log_html([
-            ("ok",  f"n_rows = {du['n_rows']:,}"),
-            ("ok",  f"n_cols = {du['n_cols']}"),
-            ("inf", f"unique payment_method = {du['unique_payment']}"),
-            ("inf", f"unique device_type    = {du['unique_device']}"),
-            ("inf", f"unique product_category = {du['unique_category']}"),
-            ("run" if missing > 0 else "ok",
-             f"missing_values = {missing} {'→ akan di-drop pada preprocessing' if missing > 0 else '✓ data bersih'}"),
+        make_log_html([
+            ("ok",  f"validate_columns() → 7 kolom wajib terverifikasi via set.issubset()"),
+            ("ok",  f"n_rows = {du['n_rows']:,}  |  n_cols = {du['n_cols']}"),
+            ("inf", f"df.isnull().sum() → missing_total = {missing}"),
+            ("inf", f"payment_method: {du['unique_payment']} metode unik"),
+            ("inf", f"device_type: {du['unique_device']} platform unik"),
+            ("inf", f"product_category: {du['unique_category']} kategori unik"),
+            ("ok" if missing == 0 else "run",
+             f"Status missing values: {'Bersih ✓' if missing == 0 else f'{missing} baris → akan di-drop pada fase preparasi'}"),
         ])
     )
 
@@ -927,171 +917,221 @@ elif step_now == "preview":
             st.session_state["step"] = "analisis"; st.rerun()
 
 
-
-# ═══════════STEP 3 — ANALISIS (dengan tampilan langkah algoritma)════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+#  STEP 3 — ANALISIS (FASE 1 Business Understanding + FASE 3-4 Modeling)
+# ══════════════════════════════════════════════════════════════════════════════
 elif step_now == "analisis":
     df = gs("df_raw")
     st.markdown("""
     <div class="section-title">
-        <span class="section-title-icon">⚙</span> Proses K-Means Clustering — Langkah demi Langkah
+        <span class="section-title-icon">⚙</span> Pipeline K-Means Clustering — CRISP-DM Fase 1, 3 & 4
     </div>
     """, unsafe_allow_html=True)
 
     progress_bar = st.progress(0, text="Memulai pipeline CRISP-DM…")
     status_text  = st.empty()
 
-    # ── FASE 3: Data Preparation ──────────────────────────────────────────
-    status_text.markdown("⚙️ **FASE 3** — Data Preparation: Encoding & Standardisasi…")
+    # ── FASE 1: Business Understanding
+    render_algo_phase(
+        "FASE 01", "BUSINESS UNDERSTANDING",
+        """Tujuan analisis: mengidentifikasi pola perilaku pengguna e-wallet
+        menggunakan <b>7 variabel gabungan</b> — waktu transaksi, jenis produk,
+        nilai transaksi, insentif (cashback & poin), metode pembayaran, dan jenis perangkat.
+        <br><br>
+        <b>Kriteria keberhasilan</b> (ditetapkan via <code>sklearn.metrics</code>):
+        Silhouette Score <code>≥ 0.4</code> → cluster ideal dengan karakteristik unik
+        yang dapat diinterpretasi secara bisnis.
+        <br><br>
+        <b>Output yang diharapkan:</b> Pengelompokan deskriptif yang memetakan
+        gaya hidup digital pengguna + rekomendasi strategi pemasaran personal.""",
+        PHASE_COLORS[0],
+        make_log_html([
+            ("inf", "Tujuan: segmentasi perilaku transaksi digital pengguna e-wallet"),
+            ("inf", "Variabel: 7 fitur gabungan (waktu + insentif + teknologi akses)"),
+            ("inf", "Kriteria sukses: Silhouette Score ≥ 0.4"),
+            ("inf", "Library evaluasi: sklearn.metrics.silhouette_score"),
+        ])
+    )
+    progress_bar.progress(10, text="Fase 1 selesai…")
+
+    # ── FASE 3: Data Preparation
+    status_text.markdown("⚙️ **FASE 3** — Data Preparation…")
     time.sleep(0.3)
-    progress_bar.progress(15, text="Fase 3: Preprocessing data…")
+    progress_bar.progress(20, text="Fase 3: Preprocessing data…")
 
     df_proc, X_scaled, features, le_info, scaler, prep_log = fase3_data_preparation(df)
 
     render_algo_phase(
         "FASE 03", "DATA PREPARATION",
-        """Tiga sub-langkah transformasi data sebelum algoritma clustering dijalankan:
+        """<b>3a. Parsing Datetime & Ekstraksi Fitur Waktu</b><br>
+        <code>pd.to_datetime(dayfirst=True, errors="coerce")</code> pada kolom
+        <code>transaction_date</code>, lalu <code>.dt.hour</code> → kolom baru
+        <code>transaction_hour</code> ∈ [0, 23] sebagai fitur ritme harian.
         <br><br>
-        <b>3a. Parsing Tanggal</b> — Ekstrak jam dari kolom <code>transaction_date</code>
-        menghasilkan fitur numerik <code>transaction_hour</code> ∈ [0, 23].<br><br>
-        <b>3b. Label Encoding</b> — Variabel kategorikal dikonversi ke integer:
-        <code>payment_method</code>, <code>device_type</code>, <code>product_category</code>
-        menggunakan <code>sklearn.LabelEncoder</code>.<br><br>
-        <b>3c. Feature Selection</b> — 7 fitur dipilih sebagai input clustering.<br><br>
-        <b>3d. Standardisasi Z-Score</b> — Setiap fitur dinormalisasi:
-        <code>x' = (x − μ) / σ</code> sehingga mean=0 dan std=1.
-        Tanpa ini, fitur berskala besar (misal <code>product_amount</code> dalam ribuan)
-        akan mendominasi jarak Euclidean.""",
+        <b>3b. Label Encoding</b><br>
+        <code>LabelEncoder()</code> dipakai pada <code>payment_method</code>,
+        <code>device_type</code>, dan <code>product_category</code> — mengubah
+        variabel teks menjadi integer ordinal agar dapat diproses K-Means.
+        <br><br>
+        <b>3c. Seleksi 7 Fitur</b><br>
+        Array <code>features</code> diisi: <code>transaction_hour</code>,
+        <code>product_category_enc</code>, <code>product_amount</code>,
+        <code>cashback</code>, <code>loyalty_points</code>,
+        <code>payment_method_enc</code>, <code>device_type_enc</code> → matrix X.
+        <br><br>
+        <b>3d. Normalisasi Z-Score</b><br>
+        <code>StandardScaler().fit_transform(X)</code> → mean=0, std=1.
+        Wajib dilakukan agar perbedaan skala tidak mendominasi jarak Euclidean K-Means
+        (misal <code>product_amount</code> dalam ribuan vs <code>device_type_enc</code> 0-2).""",
         PHASE_COLORS[2],
-        log_html([
-            ("ok",  f"transaction_hour diekstrak dari datetime"),
-            ("ok",  f"LabelEncoding: payment_method → {list(le_info.get('payment_method',{}).items())[:3]}"),
-            ("ok",  f"LabelEncoding: device_type    → {list(le_info.get('device_type',{}).items())[:3]}"),
-            ("ok",  f"LabelEncoding: product_category → {list(le_info.get('product_category',{}).items())[:3]}"),
-            ("ok",  f"X_scaled.shape = {X_scaled.shape}  (baris × fitur)"),
-            ("inf", f"μ (mean) = {scaler.mean_.round(2)}"),
-            ("inf", f"σ (std)  = {scaler.scale_.round(2)}"),
+        make_log_html([
+            ("ok",  f"3a. transaction_hour diekstrak: {df_proc['transaction_hour'].min():.0f}–{df_proc['transaction_hour'].max():.0f}"),
+            ("ok",  f"3b. LabelEncoding payment_method → {dict(list(le_info.get('payment_method',{}).items())[:3])}"),
+            ("ok",  f"3b. LabelEncoding device_type    → {dict(list(le_info.get('device_type',{}).items())[:3])}"),
+            ("ok",  f"3b. LabelEncoding product_category → {dict(list(le_info.get('product_category',{}).items())[:3])}"),
+            ("ok",  f"3c. Matrix X shape = {X_scaled.shape}  (baris × 7 fitur)"),
+            ("ok",  f"3d. μ (mean) = {scaler.mean_.round(2)}"),
+            ("ok",  f"3d. σ (std)  = {scaler.scale_.round(2)}"),
         ])
     )
-
     st.markdown("""
     <div class="formula-box">x' = (x − μ) / σ</div>
-    <div class="formula-label">Rumus Standardisasi Z-Score — membuat semua fitur setara skalanya</div>
+    <div class="formula-label">Rumus Standardisasi Z-Score — menyamakan skala semua 7 fitur</div>
     """, unsafe_allow_html=True)
 
-    # ── FASE 4a: Elbow Method ─────────────────────────────────────────────
-    status_text.markdown("📈 **FASE 4a** — Elbow Method: Menghitung WCSS untuk k=2..10…")
-    progress_bar.progress(30, text="Fase 4a: Elbow Method…")
+    # ── FASE 4a: Elbow Method
+    status_text.markdown("📈 **FASE 4a** — Elbow Method: k=2..10…")
+    progress_bar.progress(35, text="Fase 4a: Elbow Method…")
 
     k_range, wcss, elbow_log = fase4a_elbow_method(X_scaled)
 
     render_algo_phase(
-        "FASE 04a", "ELBOW METHOD — Mencari k Optimal",
-        """Untuk setiap nilai k (jumlah cluster), jalankan K-Means dan hitung
-        <b>WCSS (Within-Cluster Sum of Squares)</b> = total jarak kuadrat setiap titik
-        ke centroidnya. Semakin banyak cluster, WCSS semakin kecil — namun ada titik
-        di mana penurunan mulai melambat (bentuk "siku"). Titik siku itulah k optimal.""",
+        "FASE 04a", "MODELING — Elbow Method (k=2–10)",
+        """Loop <code>k</code> dari 2 hingga 10. Tiap iterasi jalankan
+        <code>KMeans(n_clusters=k, init='k-means++', max_iter=300, n_init=10, random_state=42)</code>
+        lalu simpan <code>.inertia_</code> (WCSS = Within-Cluster Sum of Squares).
+        <br><br>
+        WCSS diplot sebagai kurva Elbow dengan Plotly <code>go.Scatter</code> dan
+        garis vertikal putus-putus <code>fig.add_vline</code> di posisi k optimal.
+        Titik "siku" kurva = kandidat k optimal.""",
         PHASE_COLORS[0],
-        log_html([
-            ("run", f"Iterasi k = {k_range}"),
+        make_log_html([
+            ("run", f"Loop k = {k_range}"),
         ] + [
             ("ok", f"k={e['k']}: WCSS={e['wcss']:,.1f}  |  n_iter={e['n_iterations']}")
             for e in elbow_log
         ])
     )
-
     st.markdown("""
     <div class="formula-box">WCSS = Σᵢ Σₓ∈Cᵢ ‖x − μᵢ‖²</div>
-    <div class="formula-label">Within-Cluster Sum of Squares — ukuran kepadatan cluster (semakin kecil semakin baik)</div>
+    <div class="formula-label">Within-Cluster Sum of Squares — semakin kecil semakin padat cluster</div>
     """, unsafe_allow_html=True)
 
-    # ── FASE 4b: Silhouette ───────────────────────────────────────────────
-    status_text.markdown("📊 **FASE 4b** — Silhouette Analysis: Validasi kualitas cluster…")
+    # ── FASE 4b: Silhouette
+    status_text.markdown("📊 **FASE 4b** — Silhouette Score…")
     progress_bar.progress(55, text="Fase 4b: Silhouette Analysis…")
 
     sil_scores, sil_log = fase4b_silhouette_analysis(X_scaled, k_range)
     optimal_k = k_range[int(np.argmax(sil_scores))]
+    best_sil  = max(sil_scores)
+    threshold_met = "✓ Memenuhi kriteria" if best_sil >= 0.4 else "⚠ Di bawah threshold"
 
     render_algo_phase(
-        "FASE 04b", "SILHOUETTE ANALYSIS — Validasi Kualitas Cluster",
-        f"""Silhouette Score mengukur dua hal sekaligus:
-        <br>• <b>a(i)</b> — <i>cohesion</i>: rata-rata jarak titik i ke anggota clusternya sendiri
-        <br>• <b>b(i)</b> — <i>separation</i>: rata-rata jarak titik i ke cluster terdekat lainnya
+        "FASE 04b", "MODELING — Silhouette Score (Validasi k Optimal)",
+        f"""Dalam loop yang sama, hitung <code>silhouette_score(X_scaled, km.labels_)</code> per k.
+        k dengan <code>np.argmax(sil_scores)</code> ditetapkan sebagai <code>optimal_k</code>.
+        Bar chart Plotly dengan bar tertinggi disorot warna solid.
         <br><br>
-        Score mendekati +1 = cluster sangat padat & terpisah dengan baik.
-        Dipilih k dengan score tertinggi → <code>k = {optimal_k}</code>
-        (score = {max(sil_scores):.4f}).""",
+        <b>Formula per titik data:</b><br>
+        • <b>a(i)</b> = rata-rata jarak ke anggota cluster sendiri (cohesion)<br>
+        • <b>b(i)</b> = rata-rata jarak ke cluster terdekat lainnya (separation)<br><br>
+        Score mendekati +1 = cluster sangat padat & terpisah baik.
+        Hasil: <code>optimal_k = {optimal_k}</code>, score = <code>{best_sil:.4f}</code>
+        &nbsp;→ <b>{threshold_met} (≥ 0.4)</b>""",
         PHASE_COLORS[3],
-        log_html([
-            ("run", "Menghitung s(i) = (b(i) − a(i)) / max(a(i), b(i)) untuk setiap titik"),
+        make_log_html([
+            ("run", "silhouette_score(X_scaled, km.labels_) per k"),
         ] + [
             ("ok" if e["best"] else "inf",
-             f"k={e['k']}: silhouette={e['score']}  {'← TERPILIH ✓' if e['best'] else ''}")
+             f"k={e['k']}: score={e['score']}  {'← OPTIMAL ✓ | np.argmax(sil_scores)' if e['best'] else ''}")
             for e in sil_log
+        ] + [
+            ("ok" if best_sil >= 0.4 else "run",
+             f"Kriteria ≥ 0.4: {threshold_met} → optimal_k = {optimal_k}"),
         ])
     )
-
     st.markdown("""
     <div class="formula-box">s(i) = (b(i) − a(i)) / max(a(i), b(i))</div>
-    <div class="formula-label">Silhouette Score per titik data — rata-rata seluruh titik = Silhouette Score keseluruhan</div>
+    <div class="formula-label">Silhouette Score per titik — rata-rata seluruh titik = score keseluruhan</div>
     """, unsafe_allow_html=True)
 
-    # ── FASE 4c: K-Means Final ────────────────────────────────────────────
-    status_text.markdown(f"🎯 **FASE 4c** — K-Means Clustering dengan k={optimal_k}…")
-    progress_bar.progress(75, text=f"Fase 4c: K-Means k={optimal_k}…")
+    # ── FASE 4c: K-Means Final
+    status_text.markdown(f"🎯 **FASE 4c** — Training K-Means Final k={optimal_k}…")
+    progress_bar.progress(72, text=f"Fase 4c: K-Means k={optimal_k}…")
 
-    labels, km_model, km_log = fase4c_kmeans_clustering(X_scaled, optimal_k)
+    labels, km_model, km_log = fase4c_kmeans_final(X_scaled, optimal_k)
 
     render_algo_phase(
-        "FASE 04c", f"K-MEANS CLUSTERING — k = {optimal_k}",
-        f"""Algoritma K-Means++ dijalankan dengan <code>n_init=10</code>
-        (10 inisialisasi berbeda, ambil yang terbaik).
+        "FASE 04c", f"MODELING — Training Model Final K-Means (k={optimal_k})",
+        f"""Fungsi <code>run_kmeans(X_scaled, optimal_k)</code> →
+        <code>KMeans.fit_predict()</code> menghasilkan array label integer per baris transaksi.
+        Label disimpan di <code>st.session_state["labels"]</code> dan
+        ditambahkan ke DataFrame sebagai kolom <code>cluster</code>.
         <br><br>
-        <b>Assignment Step (E-Step)</b>: setiap titik data di-assign ke centroid terdekat
+        <b>Assignment Step (E-Step):</b> setiap titik di-assign ke centroid terdekat
         berdasarkan jarak Euclidean.<br>
-        <b>Update Step (M-Step)</b>: centroid diperbarui ke rata-rata anggota clusternya.<br>
-        <br>Proses konvergen setelah <code>{km_log['n_iterations']} iterasi</code>
-        dengan WCSS akhir = <code>{km_log['final_inertia']:,.2f}</code>.""",
+        <b>Update Step (M-Step):</b> centroid diperbarui ke rata-rata anggota cluster.
+        <br><br>
+        Inisialisasi <b>k-means++</b>: memilih centroid awal yang tersebar jauh satu sama lain,
+        menghindari konvergensi ke local minimum.
+        Konvergen setelah <code>{km_log['n_iterations']} iterasi</code>,
+        WCSS final = <code>{km_log['final_inertia']:,.2f}</code>.""",
         PHASE_COLORS[4],
-        log_html([
-            ("run", f"KMeans(n_clusters={optimal_k}, init='k-means++', n_init=10, random_state=42)"),
+        make_log_html([
+            ("run", f"KMeans(n_clusters={optimal_k}, init='k-means++', max_iter=300, n_init=10, random_state=42)"),
+            ("run", ".fit_predict(X_scaled) → array label integer per transaksi"),
             ("ok",  f"Konvergen dalam {km_log['n_iterations']} iterasi"),
             ("ok",  f"Final WCSS (inertia) = {km_log['final_inertia']:,.2f}"),
-            ("ok",  f"Ukuran cluster: { {f'C{k}':v for k,v in km_log['cluster_sizes'].items()} }"),
+            ("ok",  f"Distribusi cluster: { {f'C{k}':v for k,v in km_log['cluster_sizes'].items()} }"),
+            ("inf", "Label disimpan → st.session_state['labels'] + df['cluster']"),
         ])
     )
-
     st.markdown("""
     <div class="formula-box">c(x) = argminᵢ ‖x − μᵢ‖²  &nbsp;→&nbsp;  μᵢ = (1/|Cᵢ|) Σₓ∈Cᵢ x</div>
-    <div class="formula-label">Assignment Step (kiri) dan Update Step (kanan) — diulang hingga konvergen</div>
+    <div class="formula-label">Assignment Step (kiri) dan Update Step (kanan) — diulang hingga label tidak berubah</div>
     """, unsafe_allow_html=True)
 
-    # ── FASE 4d: PCA ──────────────────────────────────────────────────────
+    # ── FASE 4d: PCA Visualization
     status_text.markdown("🗺 **FASE 4d** — PCA 2D untuk visualisasi…")
-    progress_bar.progress(90, text="Fase 4d: PCA Dimensionality Reduction…")
+    progress_bar.progress(88, text="Fase 4d: PCA Dimensionality Reduction…")
 
-    coords, var_ratio, pca_log = fase4d_pca_reduction(X_scaled, labels)
+    coords, var_ratio, pca_log = fase4d_pca_visualization(X_scaled, labels)
 
     render_algo_phase(
-        "FASE 04d", "PCA — Reduksi Dimensi untuk Visualisasi",
-        f"""PCA (Principal Component Analysis) digunakan <b>hanya untuk visualisasi</b>.
-        Clustering sesungguhnya terjadi di ruang 7 dimensi.
-        PCA memproyeksikan 7D → 2D dengan mempertahankan arah variansi terbesar
-        (eigenvector dengan eigenvalue terbesar).
+        "FASE 04d", "MODELING — Reduksi PCA 2D (Visualisasi)",
+        f"""<code>PCA(n_components=2, random_state=42).fit_transform(X_scaled)</code>
+        menghasilkan koordinat 2D tiap transaksi.
+        <code>explained_variance_ratio_</code> ditampilkan di judul scatter plot
+        sebagai persentase variansi yang dijelaskan.
+        <br><br>
+        <b>Catatan penting:</b> PCA digunakan <i>hanya untuk visualisasi</i>.
+        Clustering sesungguhnya terjadi di ruang 7 dimensi — label cluster berasal
+        dari K-Means 7D, bukan dari PCA.
         <br><br>
         PC1 menjelaskan <code>{var_ratio[0]*100:.1f}%</code> variansi,
         PC2 menjelaskan <code>{var_ratio[1]*100:.1f}%</code>.
         Total informasi dipertahankan: <code>{pca_log['total_var_explained']:.1f}%</code>.""",
         PHASE_COLORS[5],
-        log_html([
-            ("run", "PCA(n_components=2).fit_transform(X_scaled)"),
-            ("ok",  f"PC1 explained variance = {var_ratio[0]*100:.2f}%"),
-            ("ok",  f"PC2 explained variance = {var_ratio[1]*100:.2f}%"),
-            ("inf", f"Total dipertahankan    = {pca_log['total_var_explained']:.1f}%"),
-            ("inf", "Catatan: Label cluster dari K-Means 7D, bukan PCA"),
+        make_log_html([
+            ("run", "PCA(n_components=2, random_state=42).fit_transform(X_scaled)"),
+            ("ok",  f"PC1 explained_variance_ratio_ = {var_ratio[0]*100:.2f}%"),
+            ("ok",  f"PC2 explained_variance_ratio_ = {var_ratio[1]*100:.2f}%"),
+            ("inf", f"Total variansi dipertahankan  = {pca_log['total_var_explained']:.1f}%"),
+            ("inf", "Label cluster = K-Means 7D (bukan dari PCA)"),
         ])
     )
 
-    # Simpan semua ke session state
+    # Simpan state
     st.session_state.update({
         "df_proc"  : df_proc,
         "X_scaled" : X_scaled,
@@ -1111,18 +1151,22 @@ elif step_now == "analisis":
     })
 
     progress_bar.progress(100, text="✅ Semua fase selesai!")
-    time.sleep(0.5)
+    time.sleep(0.4)
     status_text.empty()
 
-    st.success(f"✅ Pipeline CRISP-DM selesai! Ditemukan **{optimal_k} cluster optimal** "
-               f"(Silhouette Score = {max(sil_scores):.4f})")
+    st.success(
+        f"✅ Pipeline CRISP-DM selesai! **{optimal_k} cluster optimal** terbentuk "
+        f"(Silhouette Score = {best_sil:.4f} — "
+        f"{'Memenuhi' if best_sil >= 0.4 else 'Di bawah'} kriteria ≥ 0.4)"
+    )
 
     if st.button("Lihat Hasil & Insight →", type="primary", use_container_width=True):
         st.session_state["step"] = "hasil"; st.rerun()
 
 
-
-# ════════════STEP 4 — HASIL══════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+#  STEP 4 — HASIL (FASE 5: Evaluation & Deployment)
+# ══════════════════════════════════════════════════════════════════════════════
 elif step_now == "hasil":
     df_proc    = gs("df_proc")
     wcss       = gs("wcss")
@@ -1134,10 +1178,11 @@ elif step_now == "hasil":
     var_ratio  = gs("var_ratio")
     km_log     = gs("km_log")
 
-    df_proc             = df_proc.iloc[:len(labels)].copy()
-    df_proc["cluster"]  = labels
+    df_proc            = df_proc.iloc[:len(labels)].copy()
+    df_proc["cluster"] = labels
 
-    # ── Summary stats ─────────────────────────────────────────────────────
+    best_sil = max(sil_scores)
+
     st.markdown(f"""
     <div class="stat-row">
         <div class="stat-card">
@@ -1149,7 +1194,7 @@ elif step_now == "hasil":
             <div class="stat-label">Cluster Optimal</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">{max(sil_scores):.3f}</div>
+            <div class="stat-number">{best_sil:.3f}</div>
             <div class="stat-label">Silhouette Score</div>
         </div>
         <div class="stat-card">
@@ -1160,12 +1205,16 @@ elif step_now == "hasil":
             <div class="stat-number">{km_log['n_iterations']}</div>
             <div class="stat-label">Iterasi K-Means</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-number">{'✓' if best_sil >= 0.4 else '✗'}</div>
+            <div class="stat-label">Kriteria ≥ 0.4</div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # ── Elbow + Silhouette Charts ─────────────────────────────────────────
+    # ── Elbow + Silhouette Charts
     st.markdown("""<div class="section-title"><span class="section-title-icon">📈</span>
-    Penentuan Cluster Optimal (Elbow + Silhouette)</div>""", unsafe_allow_html=True)
+    Penentuan Cluster Optimal — Elbow Method + Silhouette Score</div>""", unsafe_allow_html=True)
 
     c1, c2 = st.columns(2)
     with c1:
@@ -1179,11 +1228,11 @@ elif step_now == "hasil":
         ))
         fig_e.add_vline(x=optimal_k, line_dash="dot", line_color="#60A5FA",
                         line_width=1.5,
-                        annotation_text=f"k = {optimal_k}",
-                        annotation_font=dict(color="#60A5FA", size=12))
-        fig_e.update_layout(title="Elbow Method — WCSS per k",
+                        annotation_text=f"k = {optimal_k}  (optimal)",
+                        annotation_font=dict(color="#60A5FA", size=11))
+        fig_e.update_layout(title="Elbow Method — WCSS per k (fig.add_vline di k optimal)",
                             xaxis_title="Jumlah Cluster (k)",
-                            yaxis_title="WCSS (Inertia)", height=320, **DARK_LAYOUT)
+                            yaxis_title="WCSS / Inertia", height=320, **DARK_LAYOUT)
         fig_e.update_xaxes(**DARK_GRID, tickvals=k_range)
         fig_e.update_yaxes(**DARK_GRID)
         st.plotly_chart(fig_e, use_container_width=True)
@@ -1202,11 +1251,17 @@ elif step_now == "hasil":
             textfont=dict(size=11, color="#4E6380"),
             name="Silhouette"
         ))
-        fig_s.update_layout(title="Silhouette Score per k",
-                            xaxis_title="Jumlah Cluster (k)",
-                            yaxis_title="Score",
-                            yaxis_range=[0, max(sil_scores) * 1.28],
-                            height=320, **DARK_LAYOUT)
+        # Threshold line ≥ 0.4
+        fig_s.add_hline(y=0.4, line_dash="dot", line_color="#34D399",
+                        line_width=1.2,
+                        annotation_text="threshold ≥ 0.4",
+                        annotation_font=dict(color="#34D399", size=10))
+        fig_s.update_layout(
+            title="Silhouette Score per k — bar solid = np.argmax(sil_scores)",
+            xaxis_title="Jumlah Cluster (k)",
+            yaxis_title="Silhouette Score",
+            yaxis_range=[0, max(sil_scores) * 1.28],
+            height=320, **DARK_LAYOUT)
         fig_s.update_xaxes(showgrid=False, tickvals=k_range,
                            showline=True, linecolor="rgba(255,255,255,0.05)")
         fig_s.update_yaxes(**DARK_GRID)
@@ -1214,9 +1269,9 @@ elif step_now == "hasil":
 
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-    # ── PCA Scatter + Profil ──────────────────────────────────────────────
+    # ── Scatter PCA + Profil Tabel
     st.markdown("""<div class="section-title"><span class="section-title-icon">🗺</span>
-    Sebaran Cluster dalam Ruang 2D (Proyeksi PCA)</div>""", unsafe_allow_html=True)
+    Sebaran Cluster — Proyeksi PCA 2D + Profil Statistik</div>""", unsafe_allow_html=True)
 
     c3, c4 = st.columns([1.3, 1])
     with c3:
@@ -1227,8 +1282,8 @@ elif step_now == "hasil":
         fig_sc = px.scatter(
             df_pca, x="PC1", y="PC2", color="Cluster",
             color_discrete_sequence=CLUSTER_COLORS,
-            title=f"PCA 2D — PC1 {var_ratio[0]*100:.1f}%  ·  PC2 {var_ratio[1]*100:.1f}%",
-            opacity=0.65, height=400
+            title=f"PCA Scatter — PC1 {var_ratio[0]*100:.1f}%  ·  PC2 {var_ratio[1]*100:.1f}%  ·  Total {sum(var_ratio)*100:.1f}%",
+            opacity=0.65, height=420
         )
         fig_sc.update_traces(marker=dict(size=5, line=dict(width=0)))
         fig_sc.update_layout(
@@ -1241,54 +1296,25 @@ elif step_now == "hasil":
         st.plotly_chart(fig_sc, use_container_width=True)
 
     with c4:
-        st.markdown('<p style="font-size:0.85rem;font-weight:600;color:#64748B;margin-bottom:0.5rem;">Profil Statistik Tiap Cluster</p>',
+        # FASE 5: Profiling — df.groupby("cluster").agg()
+        profile_raw = fase5_profiling(df_proc)
+
+        st.markdown('<p style="font-size:0.85rem;font-weight:600;color:#64748B;margin-bottom:0.5rem;">Profil Cluster — df.groupby("cluster").agg()</p>',
                     unsafe_allow_html=True)
-        profile = df_proc.groupby("cluster").agg(
-            Jumlah    =("cluster",          "count"),
-            Nominal   =("product_amount",    "mean"),
-            Cashback  =("cashback",          "mean"),
-            Poin      =("loyalty_points",    "mean"),
-            Jam_Puncak=("transaction_hour",  lambda x: x.mode()[0]),
-            Metode    =("payment_method",    lambda x: x.mode()[0]),
-            Perangkat =("device_type",       lambda x: x.mode()[0]),
-        ).reset_index()
-        profile["Nominal"]    = profile["Nominal"].map("Rp{:,.0f}".format)
-        profile["Cashback"]   = profile["Cashback"].map("{:.1f}".format)
-        profile["Poin"]       = profile["Poin"].map("{:.0f}".format)
-        profile["Jam_Puncak"] = profile["Jam_Puncak"].map(lambda x: f"{x:02d}:00")
-        profile["cluster"]    = profile["cluster"].map(lambda x: f"C{x}")
-        profile.columns = ["Cluster","Jumlah","Nominal","Cashback","Poin","Jam","Metode","Perangkat"]
-        st.dataframe(profile.set_index("Cluster"), use_container_width=True, height=360)
+        profile_display = profile_raw.copy()
+        profile_display["nominal"]  = profile_display["nominal"].map("Rp{:,.0f}".format)
+        profile_display["cashback"] = profile_display["cashback"].map("{:.1f}".format)
+        profile_display["poin"]     = profile_display["poin"].map("{:.0f}".format)
+        profile_display["jam"]      = profile_display["jam"].map(lambda x: f"{int(x):02d}:00")
+        profile_display["cluster"]  = profile_display["cluster"].map(lambda x: f"C{x}")
+        profile_display.columns = ["Cluster","N","Nominal","Cashback","Poin","Jam","Metode","Perangkat","Kategori"]
+        st.dataframe(profile_display.set_index("Cluster"), use_container_width=True, height=360)
 
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-    # ── Persona Cards ─────────────────────────────────────────────────────
+    # ── FASE 5: Persona (get_persona_name + get_persona_desc)
     st.markdown("""<div class="section-title"><span class="section-title-icon">🎯</span>
-    Persona Tiap Cluster</div>""", unsafe_allow_html=True)
-
-    profile_raw = df_proc.groupby("cluster").agg(
-        jumlah  =("cluster",          "count"),
-        nominal =("product_amount",    "mean"),
-        cashback=("cashback",          "mean"),
-        poin    =("loyalty_points",    "mean"),
-        jam     =("transaction_hour",  lambda x: x.mode()[0]),
-        metode  =("payment_method",    lambda x: x.mode()[0]),
-        device  =("device_type",       lambda x: x.mode()[0]),
-        kategori=("product_category",  lambda x: x.mode()[0]),
-    ).reset_index()
-
-    def p_name(row):
-        sesi  = "Malam"   if row["jam"] >= 20 or row["jam"] < 5 else \
-                "Pagi"    if row["jam"] < 12 else \
-                "Siang"   if row["jam"] < 17 else "Sore"
-        level = "Premium" if row["nominal"] > 6000 else \
-                "Menengah" if row["nominal"] > 3000 else "Hemat"
-        return f"Pengguna {level} · {row['device']} · {sesi}"
-
-    def p_desc(row):
-        return (f"Transaksi dominan pukul {row['jam']:02d}:00 melalui {row['device']}. "
-                f"Metode favorit {row['metode']} dengan fokus kategori "
-                f"<strong style='color:#CBD5E1'>{row['kategori']}</strong>.")
+    FASE 5: Evaluation — Persona Cluster</div>""", unsafe_allow_html=True)
 
     cols = st.columns(min(optimal_k, 4))
     for _, row in profile_raw.iterrows():
@@ -1306,19 +1332,20 @@ elif step_now == "hasil":
                 <div class="persona-body">
                     <span class="persona-badge"
                           style="background:{cll};color:{clt}">
-                        Cluster {c} &nbsp;·&nbsp; {pct:.1f}%
+                        Cluster {c} &nbsp;·&nbsp; {pct:.1f}% &nbsp;·&nbsp; n={row['jumlah']:,}
                     </span>
-                    <div class="persona-name">{p_name(row)}</div>
+                    <div class="persona-name">{get_persona_name(row)}</div>
                     <div class="persona-chips">
-                        <span class="persona-chip">⏰ {row['jam']:02d}:00</span>
+                        <span class="persona-chip">⏰ {int(row['jam']):02d}:00</span>
                         <span class="persona-chip">📱 {row['device']}</span>
                         <span class="persona-chip">Rp {row['nominal']:,.0f}</span>
                     </div>
-                    <div class="persona-desc">{p_desc(row)}</div>
+                    <div class="persona-desc">{get_persona_desc(row)}</div>
                     <div class="persona-footer">
                         <span>💳 {row['metode']}</span>
                         <span>⭐ {row['poin']:.0f} poin</span>
                         <span>🛍 {row['kategori']}</span>
+                        <span>💸 cb {row['cashback']:.1f}</span>
                     </div>
                 </div>
             </div>
@@ -1326,7 +1353,7 @@ elif step_now == "hasil":
 
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-    # ── Rekomendasi ───────────────────────────────────────────────────────
+    # ── Rekomendasi Pemasaran
     st.markdown("""<div class="section-title"><span class="section-title-icon">💡</span>
     Rekomendasi Strategi Pemasaran per Cluster</div>""", unsafe_allow_html=True)
 
@@ -1334,56 +1361,67 @@ elif step_now == "hasil":
     for _, row in profile_raw.iterrows():
         c      = int(row["cluster"])
         clr    = CLUSTER_COLORS[c % len(CLUSTER_COLORS)]
+        # reward: cashback vs poin/10
         reward = "Cashback" if row["cashback"] > row["poin"] / 10 else "Poin Loyalitas"
-        waktu  = f"{row['jam']:02d}:00 – {(row['jam'] + 2) % 24:02d}:00"
+        waktu  = f"{int(row['jam']):02d}:00 – {(int(row['jam']) + 2) % 24:02d}:00"
 
         with reco_cols[c % len(reco_cols)]:
             st.markdown(f"""
             <div class="reco-card">
                 <div class="reco-header">
                     <span class="reco-dot" style="background:{clr}"></span>
-                    Cluster {c}
+                    Cluster {c} — {get_persona_name(row).split('·')[0].strip()}
                 </div>
-                <div class="reco-item"><strong>⏰ Waktu</strong>{waktu}</div>
-                <div class="reco-item"><strong>🎁 Reward</strong>{reward}</div>
-                <div class="reco-item"><strong>📲 Kanal</strong>{row['device']} App</div>
-                <div class="reco-item"><strong>🛒 Produk</strong>{row['kategori']}</div>
-                <div class="reco-item"><strong>💳 Metode</strong>{row['metode']}</div>
+                <div class="reco-item"><strong>⏰ Waktu Promosi</strong>{waktu}</div>
+                <div class="reco-item"><strong>🎁 Jenis Reward</strong>{reward}</div>
+                <div class="reco-item"><strong>📲 Kanal Distribusi</strong>{row['device']} App</div>
+                <div class="reco-item"><strong>🛒 Fokus Produk</strong>{row['kategori']}</div>
+                <div class="reco-item"><strong>💳 Metode Favorit</strong>{row['metode']}</div>
             </div>
             """, unsafe_allow_html=True)
 
-    # ── Algoritma ───────────────────────────────────
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
+
+    # ── Ringkasan Pipeline (untuk presentasi)
     st.markdown("""<div class="section-title"><span class="section-title-icon">📋</span>
-    Ringkasan Pipeline Algoritma (untuk Presentasi Dosen)</div>""", unsafe_allow_html=True)
+    Ringkasan Pipeline CRISP-DM</div>""", unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="algo-phase">
-        <div class="algo-phase-accent" style="background:linear-gradient(180deg,#3B82F6,#10B981,#F59E0B,#A78BFA,#F43F5E,#0EA5E9)"></div>
-        <div class="algo-phase-body" style="line-height:2;">
-        <b style="color:#CBD5E1;font-size:0.95rem">Pipeline CRISP-DM yang Dijalankan:</b><br><br>
-        <b style="color:#60A5FA">01 · Business Understanding</b>
-            → Tujuan: segmentasi pengguna e-wallet berdasarkan perilaku transaksi<br>
-        <b style="color:#34D399">02 · Data Understanding</b>
-            → Eksplorasi {len(df_proc):,} record, 7 kolom, deteksi missing values & distribusi<br>
-        <b style="color:#FCD34D">03 · Data Preparation</b>
-            → Parsing datetime, Label Encoding (3 kolom kategorikal), Standardisasi Z-Score<br>
-        <b style="color:#C4B5FD">04a · Modeling — Elbow Method</b>
-            → Hitung WCSS untuk k=2..10, cari titik siku<br>
-        <b style="color:#F87171">04b · Modeling — Silhouette</b>
-            → Hitung s(i) tiap titik, pilih k dengan score tertinggi = <code>{optimal_k}</code><br>
-        <b style="color:#38BDF8">04c · Modeling — K-Means++</b>
-            → Clustering 7D, konvergen dalam {km_log['n_iterations']} iterasi, WCSS={km_log['final_inertia']:,.0f}<br>
-        <b style="color:#94A3B8">04d · Evaluasi — PCA 2D</b>
-            → Proyeksi 7D→2D untuk visualisasi, {sum(var_ratio)*100:.1f}% variansi dipertahankan<br>
-        <b style="color:#CBD5E1">05 · Deployment</b>
-            → Persona per cluster + rekomendasi strategi pemasaran
+        <div class="algo-phase-accent"
+             style="background:linear-gradient(180deg,#3B82F6,#10B981,#F59E0B,#A78BFA,#F43F5E,#0EA5E9)"></div>
+        <div class="algo-phase-body" style="line-height:2.1;">
+        <b style="color:#CBD5E1;font-size:0.95rem">5 Fase CRISP-DM yang Dijalankan:</b><br><br>
+        <b style="color:#60A5FA">Fase 1 · Business Understanding</b>
+        → Tujuan: segmentasi 7 variabel gabungan.
+        Kriteria: Silhouette ≥ 0.4 via <code>sklearn.metrics</code><br>
+        <b style="color:#34D399">Fase 2 · Data Collection & Understanding</b>
+        → EDA: <code>df.isnull().sum()</code>, distribusi kategorikal, validasi
+        <code>set.issubset()</code><br>
+        <b style="color:#FCD34D">Fase 3 · Data Preparation</b>
+        → <code>pd.to_datetime</code> → <code>.dt.hour</code>,
+        <code>LabelEncoder()</code> ×3,
+        <code>StandardScaler().fit_transform()</code><br>
+        <b style="color:#C4B5FD">Fase 4 · Modeling (K-Means Clustering)</b>
+        → Elbow Method <code>go.Scatter + add_vline</code>,
+        Silhouette <code>np.argmax</code> → optimal_k={optimal_k},
+        <code>KMeans.fit_predict()</code>,
+        <code>PCA(n_components=2)</code><br>
+        <b style="color:#F87171">Fase 5 · Evaluation & Deployment</b>
+        → <code>groupby().agg()</code> profiling,
+        <code>get_persona_name()</code> &amp; <code>get_persona_desc()</code>,
+        rekomendasi pemasaran per cluster<br><br>
+        <b style="color:#94A3B8">Hasil:</b>
+        {optimal_k} cluster optimal |
+        Silhouette = {best_sil:.4f} {'✓ ≥ 0.4' if best_sil >= 0.4 else '✗ < 0.4'} |
+        K-Means konvergen {km_log['n_iterations']} iterasi |
+        PCA 2D {sum(var_ratio)*100:.1f}% variansi
         </div>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🔄  Analisis Ulang dengan File Baru"):
+    if st.button("🔄  Analisis Ulang dengan File Baru", use_container_width=True):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
