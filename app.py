@@ -1164,9 +1164,9 @@ elif step_now == "analisis":
         st.session_state["step"] = "hasil"; st.rerun()
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+
 #  STEP 4 — HASIL (FASE 5: Evaluation & Deployment)
-# ══════════════════════════════════════════════════════════════════════════════
+
 elif step_now == "hasil":
     df_proc    = gs("df_proc")
     wcss       = gs("wcss")
