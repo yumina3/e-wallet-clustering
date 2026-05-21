@@ -666,16 +666,7 @@ st.markdown("""
     <h1>Analisis Cluster E-Wallet</h1>
     <p>Segmentasi pola perilaku transaksi digital menggunakan K-Means Clustering
        dengan pendekatan 5 fase CRISP-DM.</p>
-    <div class="header-badge">
-        <div class="badge-icon">🧩</div>
-        <div>
-            <span class="badge-title">Behavioral Intelligence</span>
-            <div class="badge-sub">
-                <span class="badge-dot"></span>
-                <span class="badge-status">System Ready</span>
-            </div>
-        </div>
-    </div>
+    
 </div>
 """, unsafe_allow_html=True)
 
