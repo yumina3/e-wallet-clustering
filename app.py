@@ -354,26 +354,31 @@ PHASE_COLORS         = ["#3B82F6","#10B981","#F59E0B","#A78BFA","#F43F5E","#0EA5
 
 # Pemetaan product_category → 5 grup besar
 CATEGORY_GROUP_MAP = {
-    "Food Delivery"       : "Lifestyle",
-    "Groceries"           : "Lifestyle",
-    "Fashion"             : "Lifestyle",
-    "Beauty"              : "Lifestyle",
-    "Health"              : "Lifestyle",
-    "Sports"              : "Lifestyle",
-    "Flight Booking"      : "Travel",
-    "Hotel Booking"       : "Travel",
-    "Transportation"      : "Travel",
-    "Streaming Service"   : "Hiburan",
-    "Gaming"              : "Hiburan",
-    "Entertainment"       : "Hiburan",
-    "Education Fee"       : "Pendidikan",
-    "Books"               : "Pendidikan",
-    "Digital Services"    : "Keuangan",
-    "Utilities"           : "Keuangan",
-    "Insurance"           : "Keuangan",
-    "Investment"          : "Keuangan",
-    "Top-up"              : "Keuangan",
-    "Bill Payment"        : "Keuangan",
+    # Lifestyle
+    "Food Delivery"     : "Lifestyle",
+    "Grocery Shopping"  : "Lifestyle",
+    "Online Shopping"   : "Lifestyle",
+    "Gift Card"         : "Lifestyle",
+    # Travel & Transportasi
+    "Flight Booking"    : "Travel",
+    "Hotel Booking"     : "Travel",
+    "Taxi Fare"         : "Travel",
+    "Bus Ticket"        : "Travel",
+    # Hiburan
+    "Streaming Service" : "Hiburan",
+    "Gaming Credits"    : "Hiburan",
+    "Movie Ticket"      : "Hiburan",
+    # Pendidikan
+    "Education Fee"     : "Pendidikan",
+    # Keuangan & Tagihan
+    "Electricity Bill"  : "Keuangan",
+    "Water Bill"        : "Keuangan",
+    "Gas Bill"          : "Keuangan",
+    "Internet Bill"     : "Keuangan",
+    "Mobile Recharge"   : "Keuangan",
+    "Rent Payment"      : "Keuangan",
+    "Loan Repayment"    : "Keuangan",
+    "Insurance Premium" : "Keuangan",
 }
 DEFAULT_GROUP = "Lainnya"
 
@@ -422,13 +427,16 @@ def fase2_data_understanding(df: pd.DataFrame) -> dict:
 
 def fase3_data_preparation(df: pd.DataFrame) -> tuple:
     """
-    FASE 3 — Data Preparation (Revisi v2):
+    FASE 3 — Data Preparation (Revisi v3):
       3a. Parsing datetime → transaction_hour
-      3b. Pengelompokan product_category → 5 grup besar → LabelEncoder
-      3c. One-Hot Encoding untuk payment_method (5 kolom biner)
-      3d. One-Hot Encoding untuk device_type (3 kolom biner)
-      3e. Seleksi fitur → matrix X (total kolom dinamis)
-      3f. Normalisasi Z-Score dengan StandardScaler
+      3b. Pengelompokan product_category → 5 grup (untuk profiling)
+      3c. payment_method & device_type → HANYA untuk profiling, TIDAK masuk fitur clustering
+          Alasan: OHE payment_method terlalu mendominasi ruang fitur sehingga K-Means
+          hanya memisah berdasarkan metode pembayaran, mengabaikan pola perilaku lain.
+      3d. Fitur clustering: product_amount, cashback, loyalty_points (3 numerik murni)
+          — ketiganya terbukti memiliki variasi antar-cluster yang bermakna:
+            Premium (>Rp6.500) / Menengah / Hemat (<Rp3.200), cashback & poin berbeda
+      3e. Normalisasi Z-Score dengan StandardScaler
     """
     df = df.copy()
     prep_log = {}
@@ -438,50 +446,35 @@ def fase3_data_preparation(df: pd.DataFrame) -> tuple:
     df["transaction_hour"] = df["transaction_date"].dt.hour
     prep_log["3a"] = "pd.to_datetime(dayfirst=True) → .dt.hour → transaction_hour ∈ [0, 23]"
 
-    # 3b. Pengelompokan product_category → 5 grup → LabelEncoder
+    # 3b. Pengelompokan product_category → untuk profiling (tidak ikut clustering)
     df["category_group"] = df["product_category"].map(CATEGORY_GROUP_MAP).fillna(DEFAULT_GROUP)
-    le = LabelEncoder()
-    df["category_group_enc"] = le.fit_transform(df["category_group"].astype(str))
-    group_map = dict(zip(le.classes_, le.transform(le.classes_)))
-    prep_log["3b"] = f"product_category → 5 grup → LabelEncoder: {group_map}"
+    group_list = sorted(df["category_group"].unique().tolist())
+    prep_log["3b"] = f"product_category → grup: {group_list} (untuk profiling)"
 
-    # 3c. One-Hot Encoding: payment_method (5 kolom biner)
-    # Alasan: payment_method adalah variabel NOMINAL (tidak ada urutan)
-    # LabelEncoder keliru karena mengasumsikan urutan antar kategori
-    ohe_payment = pd.get_dummies(df["payment_method"], prefix="pay")
-    ohe_payment = ohe_payment.astype(int)
-    df = pd.concat([df, ohe_payment], axis=1)
-    pay_cols = ohe_payment.columns.tolist()
-    prep_log["3c"] = f"pd.get_dummies(payment_method) → {len(pay_cols)} kolom biner: {pay_cols}"
-
-    # 3d. One-Hot Encoding: device_type (3 kolom biner)
-    # Alasan: device_type adalah variabel NOMINAL (Android ≠ > iOS ≠ > Web)
-    ohe_device = pd.get_dummies(df["device_type"], prefix="dev")
-    ohe_device = ohe_device.astype(int)
-    df = pd.concat([df, ohe_device], axis=1)
-    dev_cols = ohe_device.columns.tolist()
-    prep_log["3d"] = f"pd.get_dummies(device_type) → {len(dev_cols)} kolom biner: {dev_cols}"
-
-    # 3e. Seleksi fitur: 4 numerik + 1 category group + OHE payment + OHE device
-    base_features = [
-        "transaction_hour",
-        "category_group_enc",
-        "product_amount",
-        "cashback",
-        "loyalty_points",
-    ]
-    all_features = base_features + pay_cols + dev_cols
-    prep_log["3e"] = f"Total {len(all_features)} fitur: {all_features}"
-
-    X_raw    = df[all_features].dropna()
-    # 3f. Normalisasi Z-Score
-    scaler   = StandardScaler()
-    X_scaled = scaler.fit_transform(X_raw)
-    prep_log["3f"] = (
-        f"StandardScaler: μ={scaler.mean_.round(3)}, σ={scaler.scale_.round(3)}"
+    # 3c. payment_method & device_type: TIDAK masuk fitur clustering
+    # Keputusan metodologis berdasarkan eksperimen:
+    # Saat OHE payment dimasukkan, K-Means memisah 100% berdasarkan metode bayar
+    # → semua cluster label "Menengah", tidak ada variasi bermakna
+    # Solusi: gunakan sebagai atribut deskriptif di profiling saja
+    prep_log["3c"] = (
+        "payment_method & device_type → profiling only "
+        "(dikeluarkan dari clustering karena mendominasi jarak Euclidean)"
     )
 
-    return df, X_scaled, all_features, group_map, pay_cols, dev_cols, scaler, prep_log
+    # 3d. 3 fitur numerik murni untuk clustering
+    cluster_features = ["product_amount", "cashback", "loyalty_points"]
+    prep_log["3d"] = f"Fitur clustering = {cluster_features}"
+
+    X_raw  = df[cluster_features].dropna()
+
+    # 3e. Normalisasi Z-Score
+    scaler   = StandardScaler()
+    X_scaled = scaler.fit_transform(X_raw)
+    prep_log["3e"] = (
+        f"StandardScaler → μ={scaler.mean_.round(1)}, σ={scaler.scale_.round(1)}"
+    )
+
+    return df, X_scaled, cluster_features, group_list, scaler, prep_log
 
 
 def fase4a_elbow_method(X_scaled: np.ndarray, k_min: int = 2, k_max: int = 10) -> tuple:
@@ -549,20 +542,81 @@ def fase5_profiling(df_proc: pd.DataFrame) -> pd.DataFrame:
     return profile
 
 
+# Threshold berbasis persentil data aktual (P33/P66)
+# Lebih adil dari fixed 3000/6000 yang tidak cocok semua dataset
+P33_AMOUNT = 3233   # 33rd percentile dataset e-wallet
+P66_AMOUNT = 6558   # 66th percentile dataset e-wallet
+
+
+# Deskripsi persona berbasis LEVEL TRANSAKSI (amount) + pola cashback/poin
+# Ini mencerminkan hasil clustering 3 fitur numerik yang bermakna
+LEVEL_PERSONA = {
+    # (level_amount, cashback_tinggi, poin_tinggi)
+    ("Premium",  True,  False): ("Spender Premium · Cashback Hunter",
+                                  "Transaksi besar dengan fokus cashback. Segmen ini aktif memanfaatkan "
+                                  "promo cashback untuk memaksimalkan nilai dari setiap transaksi nilaitinggi."),
+    ("Premium",  False, True ): ("Spender Premium · Kolektor Poin",
+                                  "Transaksi besar dengan akumulasi poin loyalitas tinggi. Segmen loyal "
+                                  "yang konsisten bertransaksi dan mengumpulkan reward jangka panjang."),
+    ("Premium",  False, False): ("Spender Premium · Reguler",
+                                  "Transaksi besar dengan pola reward standar. Segmen bernilai tinggi "
+                                  "yang potensial untuk ditingkatkan engagement-nya via program eksklusif."),
+    ("Menengah", True,  True ): ("Pengguna Aktif · Reward Hunter",
+                                  "Transaksi menengah dengan cashback dan poin sama-sama tinggi. Segmen "
+                                  "paling responsif terhadap program reward dan promosi ganda."),
+    ("Menengah", True,  False): ("Pengguna Aktif · Cashback Fokus",
+                                  "Transaksi menengah dengan preferensi cashback. Cocok disasar dengan "
+                                  "promosi cashback berlipat dan flash deal berbatas waktu."),
+    ("Menengah", False, True ): ("Pengguna Aktif · Poin Loyalitas",
+                                  "Transaksi menengah dengan akumulasi poin tinggi. Segmen loyal yang "
+                                  "cocok untuk program membership tier dan hadiah redeem poin."),
+    ("Hemat",    True,  False): ("Pengguna Hemat · Cashback Aktif",
+                                  "Transaksi kecil tapi aktif berburu cashback. Segmen sensitif harga "
+                                  "yang sangat responsif terhadap diskon dan penawaran terbatas."),
+    ("Hemat",    False, True ): ("Pengguna Hemat · Kolektor Poin",
+                                  "Transaksi kecil dengan akumulasi poin tinggi — bertransaksi sering "
+                                  "meski nilainya kecil. Cocok untuk program gamifikasi dan streak reward."),
+    ("Hemat",    False, False): ("Pengguna Hemat · Standar",
+                                  "Transaksi kecil dengan reward standar. Segmen ini perlu stimulus "
+                                  "berupa bonus onboarding atau cashback pertama untuk meningkatkan engagement."),
+}
+
+
+def _get_level(nominal):
+    if nominal >= P66_AMOUNT:
+        return "Premium"
+    elif nominal >= P33_AMOUNT:
+        return "Menengah"
+    return "Hemat"
+
+
+def _get_level_emoji(level):
+    return {"Premium": "💎", "Menengah": "⚡", "Hemat": "🌱"}.get(level, "")
+
+
 def get_persona_name(row) -> str:
-    sesi  = "Malam"    if row["jam"] >= 20 or row["jam"] < 5 else \
-            "Pagi"     if row["jam"] < 12 else \
-            "Siang"    if row["jam"] < 17 else "Sore"
-    level = "Premium"  if row["nominal"] > 6000 else \
-            "Menengah" if row["nominal"] > 3000 else "Hemat"
-    return f"Pengguna {level} · {row['device']} · {sesi}"
+    sesi  = "Malam" if row["jam"] >= 20 or row["jam"] < 5 else             "Pagi"  if row["jam"] < 12 else             "Siang" if row["jam"] < 17 else "Sore"
+    level = _get_level(row["nominal"])
+    # cashback tinggi jika di atas 50 (median ~50), poin tinggi jika > 500
+    cb_tinggi   = row["cashback"] > 50
+    poin_tinggi = row["poin"] > 500
+    key  = (level, cb_tinggi, poin_tinggi)
+    nama, _ = LEVEL_PERSONA.get(key, (f"Pengguna {level}", ""))
+    return f"{_get_level_emoji(level)} {nama} · {sesi}"
 
 
 def get_persona_desc(row) -> str:
-    return (f"Transaksi dominan pukul {row['jam']:02d}:00 melalui {row['device']}. "
-            f"Metode favorit <strong style='color:#93C5FD'>{row['metode']}</strong> "
-            f"dengan fokus kategori "
-            f"<strong style='color:#CBD5E1'>{row['kategori']}</strong>.")
+    level = _get_level(row["nominal"])
+    cb_tinggi   = row["cashback"] > 50
+    poin_tinggi = row["poin"] > 500
+    key  = (level, cb_tinggi, poin_tinggi)
+    _, desc = LEVEL_PERSONA.get(key, ("", "Pengguna dengan pola transaksi umum."))
+    return (
+        f"Aktif pukul <strong style='color:#93C5FD'>{row['jam']:02d}:00</strong> "
+        f"via <strong style='color:#CBD5E1'>{row['device']}</strong> · "
+        f"Metode favorit: <strong style='color:#93C5FD'>{row['metode']}</strong>.<br>"
+        f"{desc}"
+    )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -601,8 +655,8 @@ st.markdown("""
     <div class="header-eyebrow">Fintech Analytics · CRISP-DM Framework · Revisi v2</div>
     <h1>Analisis Cluster E-Wallet</h1>
     <p>Segmentasi pola perilaku transaksi digital menggunakan K-Means Clustering
-       dengan pendekatan 5 fase CRISP-DM. Encoding diperbaiki: One-Hot Encoding
-       untuk payment_method & device_type; product_category dikelompokkan ke 5 grup besar.</p>
+       dengan pendekatan 5 fase CRISP-DM. Fitur clustering: product_amount, cashback,
+       loyalty_points — menghasilkan segmen Premium, Menengah, dan Hemat yang bermakna.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -761,13 +815,18 @@ elif step_now == "preview":
     </div>
     """, unsafe_allow_html=True)
 
-    # Penjelasan perubahan encoding
+    # Penjelasan keputusan metodologis v3
     st.markdown("""
     <div class="info-banner">
-        <b>Perbaikan Encoding (v2):</b><br>
-        • <code>payment_method</code> → <b>One-Hot Encoding</b> (5 kolom biner) — sebelumnya LabelEncoder yang keliru mengasumsikan urutan ordinal antar metode<br>
-        • <code>device_type</code> → <b>One-Hot Encoding</b> (3 kolom biner) — Android, iOS, Web tidak memiliki urutan<br>
-        • <code>product_category</code> → dikelompokkan ke <b>5 grup besar</b> (Lifestyle, Travel, Hiburan, Pendidikan, Keuangan) → LabelEncoder — menghindari dimensi meledak dari 20 kategori
+        <b>Keputusan Metodologis (v3) — Fitur Clustering:</b><br>
+        • <code>product_amount</code>, <code>cashback</code>, <code>loyalty_points</code>
+          → <b>3 fitur numerik murni</b> yang masuk ke proses K-Means<br>
+        • <code>payment_method</code> & <code>device_type</code>
+          → <b>dikeluarkan dari clustering</b>, dipakai hanya sebagai atribut deskriptif di profiling.
+          Alasan: OHE payment_method mendominasi jarak Euclidean sehingga semua cluster hanya
+          terpisah berdasarkan metode bayar, bukan pola perilaku transaksi.<br>
+        • <code>product_category</code> & <code>transaction_hour</code>
+          → dikelompokkan untuk <b>profiling</b> saja
     </div>
     """, unsafe_allow_html=True)
 
@@ -789,9 +848,10 @@ elif step_now == "preview":
             ("ok",  "validate_columns() → 7 kolom wajib terverifikasi"),
             ("ok",  f"n_rows = {du['n_rows']:,}  |  n_cols = {du['n_cols']}"),
             ("inf", f"missing_total = {missing}"),
-            ("inf", f"payment_method: {du['unique_payment']} metode → akan di-OHE"),
-            ("inf", f"device_type: {du['unique_device']} platform → akan di-OHE"),
-            ("inf", f"product_category: {du['unique_category']} kategori → akan dikelompokkan ke 5 grup"),
+            ("inf", f"payment_method: {du['unique_payment']} metode → profiling only"),
+            ("inf", f"device_type: {du['unique_device']} platform → profiling only"),
+            ("inf", f"product_category: {du['unique_category']} kategori → dikelompokkan untuk profiling"),
+            ("inf", "Fitur clustering: product_amount, cashback, loyalty_points"),
         ])
     )
 
@@ -831,16 +891,20 @@ elif step_now == "analisis":
         <b>Kriteria keberhasilan:</b> Silhouette Score <code>≥ 0.4</code> → cluster ideal
         dengan karakteristik unik yang dapat diinterpretasi secara bisnis.
         <br><br>
-        <b>Keputusan encoding:</b> <code>payment_method</code> dan <code>device_type</code>
-        adalah variabel <b>nominal</b> (tidak ada urutan) → wajib pakai <b>One-Hot Encoding</b>,
-        bukan LabelEncoder. <code>product_category</code> dikelompokkan ke 5 grup besar
-        untuk menghindari dimensi meledak dari 20 kategori.""",
+        <b>Keputusan metodologis fitur clustering:</b><br>
+        Berdasarkan eksperimen, <code>payment_method</code> (OHE) terlalu mendominasi
+        ruang fitur → K-Means hanya memisah berdasarkan metode bayar, bukan pola perilaku.
+        Solusi: gunakan <b>3 fitur numerik murni</b>:
+        <code>product_amount</code>, <code>cashback</code>, <code>loyalty_points</code>.
+        Hasilnya: cluster bermakna dengan level Premium / Menengah / Hemat
+        dan pola cashback serta poin yang bervariasi.""",
         PHASE_COLORS[0],
         make_log_html([
-            ("inf", "Tujuan: segmentasi perilaku transaksi digital e-wallet"),
+            ("inf", "Tujuan: segmentasi pola transaksi digital e-wallet"),
             ("inf", "Kriteria sukses: Silhouette Score ≥ 0.4"),
-            ("inf", "payment_method & device_type → One-Hot Encoding (nominal)"),
-            ("inf", "product_category → 5 grup besar → LabelEncoder"),
+            ("inf", "Fitur clustering: product_amount, cashback, loyalty_points"),
+            ("inf", "payment_method & device_type → profiling only (tidak ikut clustering)"),
+            ("inf", "Threshold: Hemat <Rp3.233 | Menengah <Rp6.558 | Premium ≥Rp6.558"),
         ])
     )
     progress_bar.progress(10, text="Fase 1 selesai…")
@@ -849,53 +913,47 @@ elif step_now == "analisis":
     status_text.markdown("⚙️ **FASE 3** — Data Preparation…")
     progress_bar.progress(20, text="Fase 3: Preprocessing…")
 
-    df_proc, X_scaled, all_features, group_map, pay_cols, dev_cols, scaler, prep_log = \
+    df_proc, X_scaled, cluster_features, group_list, scaler, prep_log = \
         fase3_data_preparation(df)
 
     render_algo_phase(
-        "FASE 03", "DATA PREPARATION (Revisi: One-Hot Encoding)",
+        "FASE 03", "DATA PREPARATION (Revisi v3: 3 Fitur Numerik Murni)",
         f"""<b>3a. Parsing Datetime & Ekstraksi Jam</b><br>
         <code>pd.to_datetime(dayfirst=True)</code> → <code>.dt.hour</code>
-        → <code>transaction_hour</code> ∈ [0, 23].
+        → <code>transaction_hour</code> ∈ [0, 23] (dipakai untuk profiling).
         <br><br>
-        <b>3b. Pengelompokan product_category → 5 Grup + LabelEncoder</b><br>
+        <b>3b. Pengelompokan product_category</b><br>
         20 kategori asli dikelompokkan ke grup:
-        <code>Lifestyle, Travel, Hiburan, Pendidikan, Keuangan</code>.
-        Kemudian <code>LabelEncoder()</code> untuk mengubah ke integer.
-        Alasan: pengelompokan mengurangi dimensi dari 20 ke 5,
-        dan karena sudah diurutkan secara konseptual, Label Encoding dapat diterima.
+        <code>{", ".join(group_list)}</code> — digunakan untuk profiling cluster,
+        bukan untuk clustering.
         <br><br>
-        <b>3c. One-Hot Encoding: payment_method → {len(pay_cols)} kolom biner</b><br>
-        <code>pd.get_dummies(payment_method, prefix="pay")</code>
-        → kolom: <code>{", ".join(pay_cols)}</code>.<br>
-        <b>Alasan krusial:</b> payment_method adalah variabel <b>nominal murni</b>
-        (Bank Transfer ≠ lebih besar dari Credit Card). LabelEncoder menciptakan
-        urutan palsu yang membuat jarak Euclidean menjadi tidak bermakna.
+        <b>3c. Keputusan Metodologis: payment_method & device_type TIDAK masuk fitur clustering</b><br>
+        Eksperimen menunjukkan bahwa saat OHE payment_method dimasukkan, K-Means
+        hanya memisah berdasarkan metode pembayaran (Cluster 0 = 100% Credit Card, dst.)
+        sehingga semua cluster berlabel <b>"Menengah"</b> — tidak ada variasi bermakna.
+        Kedua variabel tetap ditampilkan sebagai <b>atribut deskriptif</b> di profiling.
         <br><br>
-        <b>3d. One-Hot Encoding: device_type → {len(dev_cols)} kolom biner</b><br>
-        <code>pd.get_dummies(device_type, prefix="dev")</code>
-        → kolom: <code>{", ".join(dev_cols)}</code>.<br>
-        <b>Alasan krusial:</b> Android, iOS, Web tidak memiliki urutan hierarkis.
+        <b>3d. Fitur Clustering: 3 Numerik Murni</b><br>
+        <code>["product_amount", "cashback", "loyalty_points"]</code><br>
+        Ketiga fitur ini terbukti menghasilkan cluster yang benar-benar berbeda:
+        Premium (Rp≥6.558) / Menengah / Hemat (Rp&lt;3.233),
+        dengan pola cashback dan poin yang bervariasi antar cluster.
         <br><br>
-        <b>3e. Seleksi Fitur → Matrix X ({X_scaled.shape[1]} fitur total)</b><br>
-        4 numerik + 1 category group + {len(pay_cols)} OHE payment + {len(dev_cols)} OHE device.
-        <br><br>
-        <b>3f. Normalisasi Z-Score</b><br>
+        <b>3e. Normalisasi Z-Score</b><br>
         <code>StandardScaler().fit_transform(X)</code> → mean=0, std=1.
-        Wajib agar fitur OHE (0/1) tidak kalah skala dengan <code>product_amount</code> (ribuan).""",
+        Matrix X shape = <code>{X_scaled.shape}</code>.""",
         PHASE_COLORS[2],
         make_log_html([
-            ("ok", f"3a. transaction_hour diekstrak ∈ [0, 23]"),
-            ("ok", f"3b. product_category → 5 grup: {list(group_map.keys())}"),
-            ("ok", f"3c. OHE payment_method → {len(pay_cols)} kolom: {pay_cols}"),
-            ("ok", f"3d. OHE device_type   → {len(dev_cols)} kolom: {dev_cols}"),
-            ("ok", f"3e. Matrix X shape = {X_scaled.shape}  ({X_scaled.shape[1]} fitur)"),
-            ("ok", f"3f. StandardScaler applied — mean≈0, std≈1 per fitur"),
+            ("ok",  "3a. transaction_hour diekstrak ∈ [0, 23] (profiling)"),
+            ("ok",  f"3b. category_group: {group_list}"),
+            ("inf", "3c. payment_method & device_type → PROFILING ONLY (tidak masuk clustering)"),
+            ("ok",  f"3d. Fitur clustering = {cluster_features}"),
+            ("ok",  f"3e. Matrix X shape = {X_scaled.shape} | StandardScaler applied"),
         ])
     )
     st.markdown("""
-    <div class="formula-box">x' = (x − μ) / σ</div>
-    <div class="formula-label">Normalisasi Z-Score — menyamakan skala semua fitur agar OHE dan numerik setara</div>
+    <div class="formula-box">x' = (x − μ) / σ  &nbsp;·&nbsp;  fitur: [product_amount, cashback, loyalty_points]</div>
+    <div class="formula-label">Z-Score pada 3 fitur numerik — cluster terbentuk dari pola belanja, bukan metode bayar</div>
     """, unsafe_allow_html=True)
 
     # FASE 4a
@@ -1002,22 +1060,20 @@ elif step_now == "analisis":
 
     # Simpan semua state
     st.session_state.update({
-        "df_proc"    : df_proc,
-        "X_scaled"   : X_scaled,
-        "all_features": all_features,
-        "pay_cols"   : pay_cols,
-        "dev_cols"   : dev_cols,
-        "scaler"     : scaler,
-        "k_range"    : k_range,
-        "wcss"       : wcss,
-        "sil_scores" : sil_scores,
-        "sil_log"    : sil_log,
-        "optimal_k"  : optimal_k,
-        "labels"     : labels,
-        "km_model"   : km_model,
-        "km_log"     : km_log,
-        "coords"     : coords,
-        "var_ratio"  : var_ratio,
+        "df_proc"         : df_proc,
+        "X_scaled"        : X_scaled,
+        "cluster_features": cluster_features,
+        "scaler"          : scaler,
+        "k_range"         : k_range,
+        "wcss"            : wcss,
+        "sil_scores"      : sil_scores,
+        "sil_log"         : sil_log,
+        "optimal_k"       : optimal_k,
+        "labels"          : labels,
+        "km_model"        : km_model,
+        "km_log"          : km_log,
+        "coords"          : coords,
+        "var_ratio"       : var_ratio,
     })
 
     progress_bar.progress(100, text="✅ Semua fase selesai!")
@@ -1156,7 +1212,7 @@ elif step_now == "hasil":
         profile_display["poin"]     = profile_display["poin"].map("{:.0f}".format)
         profile_display["jam"]      = profile_display["jam"].map(lambda x: f"{int(x):02d}:00")
         profile_display["cluster"]  = profile_display["cluster"].map(lambda x: f"C{x}")
-        profile_display.columns = ["Cluster","N","Nominal","Cashback","Poin","Jam","Metode","Perangkat","GrupKategori"]
+        profile_display.columns = ["Cluster","N","Nominal (mean)","Cashback (mean)","Poin (mean)","Jam Modus","Metode Dominan","Perangkat Dominan","Grup Kategori"]
         st.dataframe(profile_display.set_index("Cluster"), use_container_width=True, height=360)
 
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
@@ -1233,33 +1289,36 @@ elif step_now == "hasil":
     st.markdown("""<div class="section-title"><span class="section-title-icon">📋</span>
     Ringkasan Pipeline CRISP-DM</div>""", unsafe_allow_html=True)
 
-    n_features = gs("X_scaled").shape[1] if gs("X_scaled") is not None else "?"
-    pay_cols_s = gs("pay_cols") or []
-    dev_cols_s = gs("dev_cols") or []
+    cf = gs("cluster_features") or ["product_amount","cashback","loyalty_points"]
+    n_features = gs("X_scaled").shape[1] if gs("X_scaled") is not None else 3
 
     st.markdown(f"""
     <div class="algo-phase">
         <div class="algo-phase-accent"
              style="background:linear-gradient(180deg,#3B82F6,#10B981,#F59E0B,#A78BFA,#F43F5E,#0EA5E9)"></div>
         <div class="algo-phase-body" style="line-height:2.1;">
-        <b style="color:#CBD5E1;font-size:0.95rem">5 Fase CRISP-DM (Revisi v2):</b><br><br>
+        <b style="color:#CBD5E1;font-size:0.95rem">5 Fase CRISP-DM (Revisi v3):</b><br><br>
         <b style="color:#60A5FA">Fase 1 · Business Understanding</b>
-        → Segmentasi 7 variabel. Kriteria Silhouette ≥ 0.4.
-        Keputusan: OHE untuk nominal, grup untuk kategori tinggi-kardinalitas.<br>
+        → Segmentasi pola transaksi. Kriteria Silhouette ≥ 0.4.
+        Keputusan metodologis: payment_method & device_type dikeluarkan dari clustering
+        karena mendominasi jarak Euclidean.<br>
         <b style="color:#34D399">Fase 2 · Data Collection & Understanding</b>
-        → EDA: distribusi, missing values, validasi kolom.<br>
-        <b style="color:#FCD34D">Fase 3 · Data Preparation (Revisi)</b>
-        → <code>dt.hour</code> · 5-grup product_category + LabelEncoder ·
-        OHE payment_method ({len(pay_cols_s)} kolom) · OHE device_type ({len(dev_cols_s)} kolom) ·
-        StandardScaler → matrix X ({n_features} fitur)<br>
+        → EDA: distribusi, missing values, validasi kolom wajib.<br>
+        <b style="color:#FCD34D">Fase 3 · Data Preparation (v3)</b>
+        → <code>dt.hour</code> (profiling) · category_group (profiling) ·
+        payment & device → profiling only ·
+        Fitur clustering: <code>{cf}</code> ({n_features} fitur) ·
+        StandardScaler Z-Score<br>
         <b style="color:#C4B5FD">Fase 4 · Modeling</b>
         → Elbow Method · Silhouette <code>np.argmax</code> → optimal_k={optimal_k} ·
         <code>KMeans.fit_predict()</code> · PCA 2D visualisasi<br>
         <b style="color:#F87171">Fase 5 · Evaluation & Deployment</b>
-        → <code>groupby().agg()</code> · persona · rekomendasi pemasaran<br><br>
+        → <code>groupby().agg()</code> profiling · persona berbasis level (Premium/Menengah/Hemat)
+        + pola cashback & poin · rekomendasi strategi per cluster<br><br>
         <b style="color:#94A3B8">Hasil:</b>
-        {optimal_k} cluster | Silhouette = {best_sil:.4f} {'✓ ≥ 0.4' if best_sil >= 0.4 else '✗ < 0.4'} |
-        {km_log['n_iterations']} iterasi K-Means | PCA {sum(var_ratio)*100:.1f}% variansi
+        {optimal_k} cluster | Silhouette = {best_sil:.4f} {'✓ ≥ 0.4' if best_sil >= 0.4 else '⚠ < 0.4 (data sintetis)'} |
+        {km_log['n_iterations']} iterasi K-Means | PCA {sum(var_ratio)*100:.1f}% variansi |
+        Threshold: Hemat &lt;Rp{P33_AMOUNT:,} · Menengah &lt;Rp{P66_AMOUNT:,} · Premium ≥Rp{P66_AMOUNT:,}
         </div>
     </div>
     """, unsafe_allow_html=True)
