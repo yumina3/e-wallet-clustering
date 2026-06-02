@@ -10,6 +10,11 @@
   5. Distribusi variabel numerik ditampilkan eksplisit di Fase 2 (EDA)
   6. Info-banner "Data Synthetic" konsisten di Fase 2, 4b, dan 5
   7. Semua 7 variabel asli TETAP dipakai — OHE + StandardScaler tidak berubah
+
+  BUG FIX v4.1:
+  - build_radar_chart: fillcolor hex → rgba() conversion fixed
+    (#3B82F6 + "18" = invalid 8-digit hex rejected by Plotly)
+    Now uses: rgba(r,g,b,0.08) parsed from hex properly
 ============================================================
 """
 
@@ -152,7 +157,6 @@ CATEGORY_GROUP_MAP = {
 }
 DEFAULT_GROUP = "Lainnya"
 
-# REVISI v4: Kriteria silhouette diturunkan ke 0.15 (realistis untuk data synthetic)
 SILHOUETTE_THRESHOLD = 0.15
 
 DARK_LAYOUT = dict(
@@ -167,6 +171,16 @@ DARK_GRID = dict(
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
+#  HELPER: hex color → rgba string
+# ══════════════════════════════════════════════════════════════════════════════
+def hex_to_rgba(hex_color: str, alpha: float = 0.08) -> str:
+    """Convert '#RRGGBB' hex to 'rgba(r,g,b,alpha)' string for Plotly."""
+    h = hex_color.lstrip("#")
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    return f"rgba({r},{g},{b},{alpha})"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 #  ALGORITMA — CRISP-DM
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -179,10 +193,6 @@ def validate_columns(df: pd.DataFrame) -> bool:
 
 
 def fase2_data_understanding(df: pd.DataFrame) -> dict:
-    """
-    REVISI v4: Tambahkan statistik distribusi untuk mendeteksi data synthetic.
-    Skewness ≈ 0 + kurtosis ≈ -1.2 = tanda distribusi uniform random.
-    """
     numeric = df[["product_amount","cashback","loyalty_points"]]
     return {
         "n_rows"         : len(df),
@@ -201,7 +211,6 @@ def fase2_data_understanding(df: pd.DataFrame) -> dict:
             "min" : df["product_amount"].min()  if "product_amount" in df.columns else 0,
             "max" : df["product_amount"].max()  if "product_amount" in df.columns else 0,
         },
-        # REVISI v4: statistik distribusi untuk disclaimer
         "skewness"       : {c: round(df[c].skew(), 3) for c in ["product_amount","cashback","loyalty_points"] if c in df.columns},
         "kurtosis"       : {c: round(df[c].kurtosis(), 3) for c in ["product_amount","cashback","loyalty_points"] if c in df.columns},
         "corr_matrix"    : numeric.corr().round(3).to_dict() if all(c in df.columns for c in ["product_amount","cashback","loyalty_points"]) else {},
@@ -323,10 +332,9 @@ def fase5_profiling(df_proc):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  PERSONA — REVISI v4: payment_method sebagai pembeda utama
+#  PERSONA
 # ══════════════════════════════════════════════════════════════════════════════
 
-# Deskripsi unik per metode bayar (pembeda utama cluster)
 PAYMENT_PERSONA = {
     "UPI"           : ("Pengguna Digital Native 📱", "Transaksi instan via UPI — lebih memilih kecepatan dan kemudahan transfer langsung. Segmen tech-savvy yang terbiasa dengan ekosistem digital payment."),
     "Credit Card"   : ("Pengguna Kartu Kredit 💳", "Memanfaatkan fasilitas kredit dan cicilan. Cenderung melakukan transaksi berencana dengan pertimbangan cashback dan reward poin dari program kartu."),
@@ -353,13 +361,11 @@ def _reward_type(cashback, poin):
     return "Standar"
 
 def get_persona_name(row):
-    """REVISI v4: nama persona berbasis payment_method (pembeda utama cluster)."""
     metode = row["metode"]
     nama, _ = PAYMENT_PERSONA.get(metode, ("Pengguna E-Wallet", ""))
     return nama
 
 def get_persona_desc(row):
-    """REVISI v4: deskripsi menekankan payment_method + sesi waktu + reward."""
     metode  = row["metode"]
     _, desc = PAYMENT_PERSONA.get(metode, ("Pengguna E-Wallet", "Pengguna aktif e-wallet."))
     sesi    = _sesi(int(row["jam"]))
@@ -375,13 +381,13 @@ def get_persona_desc(row):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  RADAR CHART — REVISI v4: visualisasi profil cluster
+#  RADAR CHART — BUG FIX: hex_to_rgba() instead of string manipulation
 # ══════════════════════════════════════════════════════════════════════════════
 def build_radar_chart(profile_raw, n_tot):
     """
-    REVISI v4: Radar chart per cluster untuk visualisasi diferensiasi.
-    Normalisasi setiap dimensi ke [0, 1] agar skala sebanding.
-    Dimensi: nominal, cashback, poin, jam (konversi skor), pct size.
+    Radar chart per cluster.
+    FIX: fillcolor now uses hex_to_rgba() — avoids 8-digit hex (#RRGGBBAA)
+         which newer Plotly versions reject as invalid color string.
     """
     categories = ["Nominal", "Cashback", "Poin", "Jam Aktif", "Ukuran Cluster"]
 
@@ -394,14 +400,16 @@ def build_radar_chart(profile_raw, n_tot):
     norm_nominal  = normalize(profile_raw["nominal"])
     norm_cashback = normalize(profile_raw["cashback"])
     norm_poin     = normalize(profile_raw["poin"])
-    # Jam: konversi ke "skor aktivitas" — malam/pagi lebih tinggi (lebih unik)
     norm_jam      = normalize(profile_raw["jam"].apply(lambda j: 1 if (j>=20 or j<6) else (0.7 if j<12 else 0.5)))
     norm_size     = normalize(profile_raw["jumlah"])
 
     fig = go.Figure()
-    for _, row in profile_raw.iterrows():
+    for idx, row in profile_raw.iterrows():
         c   = int(row["cluster"])
         clr = CLUSTER_COLORS[c % len(CLUSTER_COLORS)]
+        # ── BUG FIX: use hex_to_rgba() instead of broken string replace ──
+        fill_clr = hex_to_rgba(clr, alpha=0.08)
+
         vals = [
             norm_nominal.iloc[c],
             norm_cashback.iloc[c],
@@ -415,7 +423,7 @@ def build_radar_chart(profile_raw, n_tot):
             r=vals_closed,
             theta=cats_closed,
             fill="toself",
-            fillcolor=clr.replace(")", ",0.08)").replace("rgb","rgba") if "rgb" in clr else clr + "18",
+            fillcolor=fill_clr,
             line=dict(color=clr, width=2),
             name=f"Cluster {c} · {row['metode']}",
             hovertemplate=(
@@ -446,9 +454,6 @@ def build_radar_chart(profile_raw, n_tot):
 
 
 def build_distribution_chart(df):
-    """
-    REVISI v4: Histogram 3 variabel numerik untuk membuktikan distribusi uniform.
-    """
     fig = go.Figure()
     cols_cfg = [
         ("product_amount", "#3B82F6", "Nominal"),
@@ -507,7 +512,7 @@ def make_log(lines):
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <div class="app-header">
-    <div class="header-eyebrow">Fintech Analytics · CRISP-DM Framework · v4 Final</div>
+    <div class="header-eyebrow">Fintech Analytics · CRISP-DM Framework · v4.1 Final</div>
     <h1>Analisis Cluster E-Wallet</h1>
     <p>Segmentasi pola perilaku transaksi digital menggunakan K-Means Clustering dengan
        pendekatan 5 fase CRISP-DM. Seluruh 7 variabel digunakan — variabel kategorikal
@@ -626,7 +631,6 @@ elif step_now == "preview":
     </div>
     """, unsafe_allow_html=True)
 
-    # REVISI v4: Disclaimer data synthetic berdasarkan deteksi otomatis
     if du.get("is_likely_synthetic"):
         skew_str = " | ".join([f"{k}: {v}" for k,v in du["skewness"].items()])
         kurt_str = " | ".join([f"{k}: {v}" for k,v in du["kurtosis"].items()])
@@ -645,7 +649,6 @@ elif step_now == "preview":
         </div>
         """, unsafe_allow_html=True)
 
-    # REVISI v4: Histogram distribusi variabel numerik
     st.markdown('<p style="font-size:0.85rem;color:#3D5070;margin:1rem 0 0.5rem;font-weight:600;">Distribusi Variabel Numerik</p>', unsafe_allow_html=True)
     st.plotly_chart(build_distribution_chart(df), use_container_width=True)
 
@@ -702,7 +705,7 @@ elif step_now == "analisis":
     progress_bar = st.progress(0, text="Memulai pipeline…")
     status_text  = st.empty()
 
-    # FASE 1 — REVISI v4: kriteria disesuaikan
+    # FASE 1
     render_phase(
         "FASE 01", "BUSINESS UNDERSTANDING",
         f"""Tujuan: identifikasi pola perilaku pengguna e-wallet menggunakan
@@ -793,7 +796,7 @@ elif step_now == "analisis":
                  [("ok", f"k={e['k']}: WCSS={e['wcss']:,.1f} | iter={e['n_iterations']}") for e in elbow_log])
     )
 
-    # FASE 4b — REVISI v4: threshold ≥ 0.15
+    # FASE 4b
     status_text.markdown("📊 **FASE 4b** — Silhouette Score…")
     progress_bar.progress(55, text="Fase 4b: Silhouette Analysis…")
     sil_scores, sil_log = fase4b_silhouette_analysis(X_scaled, k_range)
@@ -801,7 +804,6 @@ elif step_now == "analisis":
     best_sil  = max(sil_scores)
     met       = "✓ Memenuhi" if best_sil >= SILHOUETTE_THRESHOLD else "⚠ Di bawah"
 
-    # REVISI v4: tambahkan catatan di fase 4b
     st.markdown(f"""
     <div class="note-banner">
         <b>Catatan Kriteria v4:</b> Silhouette Score dievaluasi terhadap threshold <b>≥ {SILHOUETTE_THRESHOLD}</b>
@@ -932,7 +934,6 @@ elif step_now == "hasil":
     </div>
     """, unsafe_allow_html=True)
 
-    # REVISI v4: disclaimer di halaman hasil
     st.markdown(f"""
     <div class="warn-banner">
         <b>⚠ Konteks Interpretasi Hasil:</b> Dataset ini bersifat uniform random (skewness ≈ 0,
@@ -974,7 +975,6 @@ elif step_now == "hasil":
             text=[f"{s:.3f}" for s in sil_scores], textposition="outside",
             textfont=dict(size=11,color="#4E6380"),
         ))
-        # REVISI v4: garis referensi 0.15, bukan 0.4
         fig_s.add_hline(y=SILHOUETTE_THRESHOLD, line_dash="dot", line_color="#34D399", line_width=1.2,
                         annotation_text=f"≥{SILHOUETTE_THRESHOLD}",
                         annotation_font=dict(color="#34D399",size=10))
@@ -987,7 +987,7 @@ elif step_now == "hasil":
 
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-    # Charts baris 2: PCA Scatter + Radar Chart (REVISI v4)
+    # Charts baris 2: PCA Scatter + Radar Chart
     st.markdown('<div class="section-title"><span class="section-title-icon">🗺</span> Sebaran Cluster PCA 2D + Radar Profil</div>', unsafe_allow_html=True)
 
     profile_raw = fase5_profiling(df_proc)
@@ -1009,11 +1009,10 @@ elif step_now == "hasil":
         st.plotly_chart(fig_sc, use_container_width=True)
 
     with c4:
-        # REVISI v4: Radar chart menggantikan tabel profil saja
         fig_r = build_radar_chart(profile_raw, n_tot)
         st.plotly_chart(fig_r, use_container_width=True)
 
-    # Tabel profil di bawah chart
+    # Tabel profil
     st.markdown('<p style="font-size:0.85rem;font-weight:600;color:#64748B;margin:0.5rem 0;">Tabel Profil Cluster — groupby().agg()</p>', unsafe_allow_html=True)
     pd_disp = profile_raw.copy()
     pd_disp["nominal"]  = pd_disp["nominal"].map("Rp{:,.0f}".format)
@@ -1026,7 +1025,7 @@ elif step_now == "hasil":
 
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-    # Persona Cards — REVISI v4: persona berbasis payment_method
+    # Persona Cards
     st.markdown('<div class="section-title"><span class="section-title-icon">🎯</span> FASE 5: Evaluation — Persona Cluster (berbasis Metode Pembayaran)</div>', unsafe_allow_html=True)
 
     st.markdown("""
@@ -1074,7 +1073,7 @@ elif step_now == "hasil":
 
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-    # Rekomendasi — REVISI v4: strategi berbasis payment channel
+    # Rekomendasi
     st.markdown('<div class="section-title"><span class="section-title-icon">💡</span> Rekomendasi Strategi per Channel Pembayaran</div>', unsafe_allow_html=True)
 
     PAYMENT_STRATEGY = {
@@ -1109,14 +1108,14 @@ elif step_now == "hasil":
 
     st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
-    # Ringkasan Pipeline v4
-    st.markdown('<div class="section-title"><span class="section-title-icon">📋</span> Ringkasan Pipeline CRISP-DM v4</div>', unsafe_allow_html=True)
+    # Ringkasan Pipeline
+    st.markdown('<div class="section-title"><span class="section-title-icon">📋</span> Ringkasan Pipeline CRISP-DM v4.1</div>', unsafe_allow_html=True)
     fg = gs("feat_groups") or {}
     st.markdown(f"""
     <div class="algo-phase">
         <div class="algo-phase-accent" style="background:linear-gradient(180deg,#3B82F6,#10B981,#F59E0B,#A78BFA,#F43F5E,#0EA5E9)"></div>
         <div class="algo-phase-body" style="line-height:2.1;">
-        <b style="color:#CBD5E1;font-size:0.95rem">5 Fase CRISP-DM — v4 Final (Revisi Kriteria + Persona)</b><br><br>
+        <b style="color:#CBD5E1;font-size:0.95rem">5 Fase CRISP-DM — v4.1 Final (Bug Fix: radar fillcolor)</b><br><br>
         <b style="color:#60A5FA">Fase 1 · Business Understanding</b>
         → 7 variabel. Kriteria Silhouette ≥ {SILHOUETTE_THRESHOLD} (disesuaikan data uniform).<br>
         <b style="color:#34D399">Fase 2 · Data Collection & Understanding</b>
@@ -1130,7 +1129,8 @@ elif step_now == "hasil":
         <b style="color:#94A3B8">Hasil:</b>
         {optimal_k} cluster | Silhouette={best_sil:.4f} {met_icon}≥{SILHOUETTE_THRESHOLD} |
         {km_log['n_iterations']} iterasi | {n_tot} fitur (OHE+StandardScaler) |
-        PCA {sum(var_ratio)*100:.1f}% variansi | Pembeda utama: payment_method
+        PCA {sum(var_ratio)*100:.1f}% variansi | Pembeda utama: payment_method<br>
+        <b style="color:#34D399">Fix v4.1:</b> hex_to_rgba() menggantikan string manipulation di radar fillcolor
         </div>
     </div>
     """, unsafe_allow_html=True)
