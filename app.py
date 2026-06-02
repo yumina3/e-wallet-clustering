@@ -298,25 +298,38 @@ def fase3_preparation(df: pd.DataFrame):
     # 3b. Imputasi median
     missing_before = df_feat.isnull().sum().sum()
     imputer = SimpleImputer(strategy="median")
-    X_imputed = imputer.fit_transform(df_feat)
+    X_imputed_arr = imputer.fit_transform(df_feat)
+    X_imputed = pd.DataFrame(X_imputed_arr, columns=FEATURES)
     prep_log["3b"] = (
-        f"SimpleImputer(strategy='median') — {missing_before} missing "
-        f"→ 0 missing. Median robust terhadap outlier skewed distribution."
+        f"SimpleImputer(strategy='median') — {missing_before} missing → 0 missing."
+    )
+
+    # 3b2. IQR Capping — hapus pengaruh outlier ekstrem
+    # Outlier seperti BALANCE=$27k, CREDIT_LIMIT=$16k menarik centroid
+    # dan membuat K-Means membentuk micro-cluster (N=3, N=9) yang tidak bermakna
+    n_before = len(X_imputed)
+    for col in ["BALANCE", "PURCHASES", "CASH_ADVANCE", "CREDIT_LIMIT",
+                "PAYMENTS", "MINIMUM_PAYMENTS", "ONEOFF_PURCHASES"]:
+        if col in X_imputed.columns:
+            Q1 = X_imputed[col].quantile(0.01)
+            Q3 = X_imputed[col].quantile(0.99)
+            X_imputed[col] = X_imputed[col].clip(lower=Q1, upper=Q3)
+    prep_log["3b2"] = (
+        f"IQR Capping [1%–99%] pada 7 kolom skewed — "
+        f"outlier di-clip bukan dihapus. n tetap {n_before}."
     )
 
     # 3c. StandardScaler
     scaler   = StandardScaler()
     X_scaled = scaler.fit_transform(X_imputed)
     prep_log["3c"] = (
-        f"StandardScaler.fit_transform → mean=0, std=1 untuk semua {len(FEATURES)} fitur. "
-        f"Kritis karena range sangat berbeda: BALANCE [0–{df['BALANCE'].max():,.0f}] "
-        f"vs BALANCE_FREQUENCY [0–1] vs TENURE [1–12]."
+        f"StandardScaler.fit_transform → mean=0, std=1 untuk semua {len(FEATURES)} fitur."
     )
 
     return X_scaled, imputer, scaler, prep_log
 
 
-def fase4a_elbow(X_scaled, k_min=2, k_max=10):
+def fase4a_elbow(X_scaled, k_min=2, k_max=6):   # k_max=6 — lebih masuk akal bisnis
     k_range, wcss, logs = [], [], []
     for k in range(k_min, k_max+1):
         km = KMeans(n_clusters=k, init="k-means++", max_iter=300, n_init=10, random_state=42)
@@ -621,25 +634,28 @@ elif step_now == "analisis":
     X_scaled, imputer, scaler, prep_log = fase3_preparation(df)
 
     render_phase(
-        "FASE 03", f"DATA PREPARATION — Imputer + StandardScaler ({len(FEATURES)} fitur numerik)",
+        "FASE 03", f"DATA PREPARATION — Imputer + IQR Capping + StandardScaler ({len(FEATURES)} fitur)",
         f"""<b>3a. Seleksi 17 Fitur Numerik</b><br>
         Buang <code>CUST_ID</code> (string identifier, bukan fitur perilaku).<br><br>
         <b>3b. Imputasi Missing Values dengan Median</b><br>
         <code>SimpleImputer(strategy='median').fit_transform(X)</code><br>
-        Median lebih robust dari mean karena distribusi fitur sangat skewed right.
-        Nasabah dengan MINIMUM_PAYMENTS=NaN → isi dengan nilai median kolom.<br><br>
-        <b>3c. StandardScaler — Kunci Keseimbangan Bobot</b><br>
-        <code>StandardScaler().fit_transform(X_imputed)</code><br>
-        Skala sangat berbeda: PURCHASES ∈ [0–49,039] vs PRC_FULL_PAYMENT ∈ [0–1].
-        Tanpa scaling, K-Means akan didominasi oleh fitur berskala besar.
-        Setelah scaling: semua fitur memiliki mean=0, std=1.<br><br>
-        <b>Matrix X final: shape = {X_scaled.shape}</b> (semua numerik, tidak ada OHE)""",
+        Median lebih robust dari mean karena distribusi fitur sangat skewed right.<br><br>
+        <b>3b2. IQR Capping [1%–99%] — Menangani Outlier Ekstrem ⚠️</b><br>
+        <code>df[col].clip(lower=Q1_1%, upper=Q3_99%)</code> pada 7 kolom skewed.<br>
+        <b>Mengapa penting:</b> Tanpa ini, outlier seperti BALANCE=$27k atau
+        CREDIT_LIMIT=$16k menarik centroid K-Means dan membentuk micro-cluster (N=3, N=9)
+        yang tidak bermakna bisnis. IQR Capping <b>meng-clip</b> (bukan menghapus) nilai
+        ekstrem → n data tetap sama, distribusi lebih representatif.<br><br>
+        <b>3c. StandardScaler</b><br>
+        <code>StandardScaler().fit_transform(X)</code> → mean=0, std=1 untuk semua {len(FEATURES)} fitur.<br><br>
+        <b>Matrix X final: shape = {X_scaled.shape}</b>""",
         PHASE_COLORS[2],
         make_log([
             ("ok",  f"3a. Seleksi {len(FEATURES)} kolom numerik, hapus CUST_ID"),
             ("ok",  f"3b. SimpleImputer(median) → 0 missing values"),
+            ("ok",  "3b2. IQR Capping [1%–99%] pada BALANCE, PURCHASES, CASH_ADVANCE, CREDIT_LIMIT, PAYMENTS, MINIMUM_PAYMENTS, ONEOFF_PURCHASES"),
             ("ok",  f"3c. StandardScaler → X.shape = {X_scaled.shape}"),
-            ("inf", "Tidak ada OHE — semua fitur numerik murni"),
+            ("inf", "k_max dibatasi 6 — lebih masuk akal untuk segmentasi bisnis"),
         ])
     )
     st.markdown('<div class="formula-box">x\' = (x − μ) / σ → mean=0, std=1 untuk semua 17 fitur numerik</div><div class="formula-label">StandardScaler — menyamakan bobot Euclidean antara BALANCE [0–490k] dan PRC_FULL_PAYMENT [0–1]</div>', unsafe_allow_html=True)
@@ -655,13 +671,14 @@ elif step_now == "analisis":
     k_range, wcss, elbow_log = fase4a_elbow(X_scaled)
 
     render_phase(
-        "FASE 04a", "MODELING — Elbow Method (k=2–10)",
+        "FASE 04a", "MODELING — Elbow Method (k=2–6)",
         f"""<code>KMeans(n_clusters=k, init='k-means++', max_iter=300, n_init=10, random_state=42)</code>
-        untuk k=2 hingga 10. WCSS disimpan per k untuk mencari titik siku.<br><br>
-        <b>k-means++</b>: centroid awal dipilih proporsional terhadap jarak kuadrat — jauh lebih
-        stabil dibanding random initialization.""",
+        untuk k=2 hingga <b>6</b>.<br><br>
+        <b>Mengapa k_max=6?</b> Secara bisnis, segmentasi nasabah kartu kredit yang actionable
+        adalah 3–6 segmen. k>6 menghasilkan cluster terlalu kecil (N&lt;1% total) yang tidak
+        bisa ditarget secara marketing. k-means++ memastikan centroid awal yang stabil.""",
         PHASE_COLORS[0],
-        make_log([("run","Loop k=2–10")] + [("ok",f"k={e['k']}: WCSS={e['wcss']:,.1f} | iter={e['n_iter']}") for e in elbow_log])
+        make_log([("run","Loop k=2–6")] + [("ok",f"k={e['k']}: WCSS={e['wcss']:,.1f} | iter={e['n_iter']}") for e in elbow_log])
     )
     st.markdown('<div class="formula-box">WCSS = Σᵢ Σₓ∈Cᵢ ‖x − μᵢ‖²</div><div class="formula-label">Within-Cluster Sum of Squares di ruang 17D ternormalisasi</div>', unsafe_allow_html=True)
 
