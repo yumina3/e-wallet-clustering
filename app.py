@@ -572,8 +572,10 @@ elif step_now == "preview":
         ])
     )
 
+    # Tampilkan 5 baris pertama — hindari kolom duplikat
+    id_col = ["CUST_ID"] if "CUST_ID" in df.columns else []
     st.markdown('<p style="font-size:0.85rem;color:#3D5070;margin:1rem 0 0.5rem;font-weight:600;">5 Baris Pertama</p>', unsafe_allow_html=True)
-    st.dataframe(df[["CUST_ID" if "CUST_ID" in df.columns else FEATURES[0]] + FEATURES].head(), use_container_width=True, height=220)
+    st.dataframe(df[id_col + FEATURES].head(), use_container_width=True, height=220)
 
     c1, c2 = st.columns([1,4])
     with c1:
