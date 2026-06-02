@@ -234,19 +234,41 @@ def validate_columns(df: pd.DataFrame) -> tuple[bool, list]:
     return len(missing) == 0, missing
 
 
+def force_numeric(df: pd.DataFrame) -> pd.DataFrame:
+    """Paksa semua kolom FEATURES menjadi numerik (float).
+    Kolom yang masih object/string karena koma desimal atau whitespace
+    akan dikonversi. Nilai yang tidak bisa dikonversi jadi NaN."""
+    df = df.copy()
+    for col in FEATURES:
+        if col in df.columns:
+            if df[col].dtype == object:
+                # Ganti koma desimal → titik, strip whitespace
+                df[col] = (df[col].astype(str)
+                           .str.strip()
+                           .str.replace(",", ".", regex=False))
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df
+
+
 def fase2_understanding(df: pd.DataFrame) -> dict:
+    df = force_numeric(df)
     df_feat = df[FEATURES]
+
+    def safe_mean(col):
+        return float(pd.to_numeric(df[col], errors="coerce").mean()) if col in df.columns else 0.0
+
     return {
         "n_rows"    : len(df),
         "n_cols"    : len(df.columns),
         "n_features": len(FEATURES),
         "missing"   : int(df_feat.isnull().sum().sum()),
         "missing_col": df_feat.isnull().sum().to_dict(),
-        "balance_mean"  : df["BALANCE"].mean()       if "BALANCE" in df.columns else 0,
-        "purchases_mean": df["PURCHASES"].mean()     if "PURCHASES" in df.columns else 0,
-        "credit_mean"   : df["CREDIT_LIMIT"].mean()  if "CREDIT_LIMIT" in df.columns else 0,
-        "tenure_mean"   : df["TENURE"].mean()        if "TENURE" in df.columns else 0,
-        "cash_adv_pct"  : (df["CASH_ADVANCE"] > 0).mean()*100 if "CASH_ADVANCE" in df.columns else 0,
+        "balance_mean"  : safe_mean("BALANCE"),
+        "purchases_mean": safe_mean("PURCHASES"),
+        "credit_mean"   : safe_mean("CREDIT_LIMIT"),
+        "tenure_mean"   : safe_mean("TENURE"),
+        "cash_adv_pct"  : float((pd.to_numeric(df["CASH_ADVANCE"], errors="coerce") > 0).mean() * 100)
+                          if "CASH_ADVANCE" in df.columns else 0.0,
     }
 
 
@@ -266,6 +288,7 @@ def fase3_preparation(df: pd.DataFrame):
         - TENURE antara 1–12
         Tanpa scaling, BALANCE/PURCHASES/CASH_ADVANCE mendominasi jarak Euclidean
     """
+    df = force_numeric(df)
     df_feat = df[FEATURES].copy()
     prep_log = {}
 
@@ -500,7 +523,7 @@ if step_now == "upload":
                 </div>""", unsafe_allow_html=True)
                 st.dataframe(df_preview.head(3), use_container_width=True, height=130)
                 if st.button("✅ Gunakan File Ini → Preview & Validasi", type="primary", use_container_width=True):
-                    st.session_state["df_raw"] = df_preview
+                    st.session_state["df_raw"] = force_numeric(df_preview)
                     st.session_state["step"]   = "preview"
                     st.rerun()
         except Exception as e:
@@ -511,7 +534,7 @@ if step_now == "upload":
 #  STEP 2 — PREVIEW & VALIDASI
 # ══════════════════════════════════════════════════════════════════════════════
 elif step_now == "preview":
-    df = gs("df_raw")
+    df = force_numeric(gs("df_raw"))
     st.markdown('<div class="section-title"><span class="section-title-icon">⌕</span> Preview & Validasi — FASE 2: Data Understanding</div>', unsafe_allow_html=True)
     du = fase2_understanding(df)
 
@@ -545,7 +568,7 @@ elif step_now == "preview":
             ("inf", f"MINIMUM_PAYMENTS missing: {du['missing_col'].get('MINIMUM_PAYMENTS',0)} → imputasi median"),
             ("inf", f"CREDIT_LIMIT missing: {du['missing_col'].get('CREDIT_LIMIT',0)} → imputasi median"),
             ("inf", "Tidak ada OHE — semua fitur sudah numerik"),
-            ("inf", f"StandardScaler wajib: BALANCE range [0–{df['BALANCE'].max():,.0f}] vs TENURE [1–12]"),
+            ("inf", f"StandardScaler wajib: BALANCE range [0–{pd.to_numeric(df['BALANCE'], errors='coerce').max():,.0f}] vs TENURE [1–12]"),
         ])
     )
 
@@ -564,7 +587,7 @@ elif step_now == "preview":
 #  STEP 3 — ANALISIS
 # ══════════════════════════════════════════════════════════════════════════════
 elif step_now == "analisis":
-    df = gs("df_raw")
+    df = force_numeric(gs("df_raw"))
     st.markdown('<div class="section-title"><span class="section-title-icon">⚙</span> Pipeline K-Means Clustering — CRISP-DM</div>', unsafe_allow_html=True)
 
     progress_bar = st.progress(0, text="Memulai pipeline…")
